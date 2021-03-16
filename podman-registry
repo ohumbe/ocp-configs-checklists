@@ -1,0 +1,78 @@
+!# /bin/bash
+#need to add user to visudo for cert stuff
+podman login registry.redhat.io
+sudo mkdir -p /opt/registry/{auth,certs,data}
+sudo chown -R $USER /opt/registry
+cd /opt/registry/certs
+openssl req -x509 -out localhost.crt -keyout localhost.key   -newkey rsa:2048 -nodes -sha256   -subj '/CN=localhost' -extensions EXT -config <( \
+  printf "[dn]\nCN=localhost\n[req]\ndistinguished_name = dn\n[EXT]\nsubjectAltName=DNS:localhost\nkeyUsage=digitalSignature\nextendedKeyUsage=serverAuth")
+htpasswd -bBc /opt/registry/auth/htpasswd openshift redhat
+podman run -d --name mirror-registry \
+-p 5000:5000 --restart=always \
+-v /opt/registry/data:/var/lib/registry:z \
+-v /opt/registry/auth:/auth:z \
+-e "REGISTRY_AUTH=htpasswd" \
+-e "REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm" \
+-e "REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd" \
+-v /opt/registry/certs:/certs:z \
+-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/localhost.crt \
+-e REGISTRY_HTTP_TLS_KEY=/certs/localhost.key \
+registry.redhat.io/openshift4/ose-docker-registry:latest
+#docker.io/library/registry:2
+#verify registry is running
+curl -u openshift:redhat -k https://localhost:5000/v2/_catalog
+#expect return value something like {repositories:[]}
+#run last command without -k should fail  with untrusted cert
+sudo cp /opt/registry/certs/localhost.crt /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+curl -u openshift:redhat https://localhost:5000/v2/_catalog
+#test pulling and pushing
+podman pull ubi7/ubi:7.7
+podman login -u openshift -p redhat localhost:5000
+podman tag registry.access.redhat.com/ubi7/ubi:7.7 
+podman push localhost:5000/ubi7/ubi:7.7
+#the following should return a single folder named ubi7
+ls /opt/registry/data/docker/registry/v2/repositories
+#this time with out k we should see the ubi 7 in the repository
+curl -u openshift:redhat https://localhost:5000/v2/_catalog
+
+
+echo from here on out we can not trust the automation because of manual pullsecret from ocp
+#create a pull secret 
+#podman login -u openshift -p redhat --authfile $HOME/pullsecret_config.json localhost:5000
+#get pull secret from redhat cloud.redhat.com put in file$HOME/ocppullsecret_config.json
+# jq -c --argjson var "$(jq .auths $HOME/pullsecret_config.json)" '.auths += $var' $HOME/ocppullsecret.json > merged_pullsecret.json
+#remember one line no spaces
+#verify
+#jq . merged_pullsecret.json
+
+#create environment for install
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export  OCP_RELEASE" line="export OCP_RELEASE=4.7.1"'
+
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export LOCAL_REGISTRY" line="export LOCAL_REGISTRY=localhost:5000"'
+
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export LOCAL_REPOSITORY" line="export LOCAL_REPOSITORY=ocp4/openshift4"'
+
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export LOCAL_SECRET_JSON" line="export LOCAL_SECRET_JSON=/home/$USER/merged_pullsecret.json"'
+
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export PRODUCT_REPO" line="export PRODUCT_REPO=openshift-release-dev"'
+
+# ansible localhost -m lineinfile -a 'path=$HOME/.bashrc regexp="^export RELEASE_NAME" line="export RELEASE_NAME=ocp-release"'
+
+#source $HOME/.bashrc
+# oc adm -a ${LOCAL_SECRET_JSON} release mirror \
+     --from=quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE}-x86_64 \
+     --to=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY} \
+     --to-release-image=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}:${OCP_RELEASE}-x86_64
+
+
+
+#verify you can pull from here and check
+#podman pull --authfile $HOME/pullsecret_config.json localhost:5000/ocp4/openshift4:${OCP_RELEASE}-operator-lifecycle-manager
+
+#verify release
+#oc adm release info -a $HOME/merged_pullsecret.json "${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}:${OCP_RELEASE}-x86_64" | head -n 18
+#compare with quay
+#oc adm release info -a $HOME/merged_pullsecret.json "quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE}-x86_64" | head -n 18
+
+#prepare artifacts for install
