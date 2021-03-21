@@ -3,7 +3,7 @@ openssl genrsa -out rootCA.key 2048
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
 
 #conf                                                              
-cat <<  EOF > csr.cnf                                          
+cat > csr.cnf <<EOF                                         
 [req]                                                              
 req_extensions = v3_req                                            
 distinguished_name = req_distinguished_name                        
@@ -19,7 +19,7 @@ IP.1 = 192.168.122.25
                                                                    
 EOF 
 
-cat <<  EOF > ssl.cnf 
+cat > ssl.cnf <<EOF 
 
 [req]
 req_extensions = v3_req
