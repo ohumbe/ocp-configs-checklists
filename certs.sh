@@ -3,21 +3,21 @@ openssl genrsa -out rootCA.key 2048
 openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
 
 #conf                                                              
-cat > csr.cnf <<EOF                                         
-[req]                                                              
-req_extensions = v3_req                                            
-distinguished_name = req_distinguished_name                        
-[req_distinguished_name]                                           
-[ v3_req ]                                                         
-basicConstraints = CA:FALSE                                        
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment       
-subjectAltName = @alt_names                                        
-[alt_names]                                                        
-DNS.1 = localhost                                                  
-DNS.2 = quay-server                                                
-IP.1 = 192.168.122.25                                              
-                                                                   
-EOF 
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+[req_distinguished_name]
+C   = US
+ST  = California
+L   = Livermore
+O   = LLNL
+OU  = POC
+CN  = localhost
+[req_ext]
+subjectAltName = @alt_names
+[alt_names]
+
 
 cat > ssl.cnf <<EOF 
 
