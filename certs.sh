@@ -1,7 +1,4 @@
-#cert CA
-openssl genrsa -out rootCA.key 2048
-openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem
-
+cat > csr.cnf <<EOF 
 #conf                                                              
 [req]
 distinguished_name = req_distinguished_name
@@ -17,6 +14,14 @@ CN  = localhost
 [req_ext]
 subjectAltName = @alt_names
 [alt_names]
+
+EOF
+
+#cert CA
+openssl genrsa -out rootCA.key 2048
+openssl req -x509 -new -nodes -key rootCA.key -sha256 -days 1024 -out rootCA.pem -extfile
+
+
 
 
 cat > ssl.cnf <<EOF 
