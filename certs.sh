@@ -50,6 +50,9 @@ openssl req -newkey rsa:2048 -keyout ocpmgm01.key -out ocpmgm01.csr -config csr.
 openssl req -noout -text -in ocpmgm01.csr  
 
 
+#make unpassword protected key
+
+openssl rsa -in localhost.key -out key.unencrypted.pem 
 
 #certs 
 
