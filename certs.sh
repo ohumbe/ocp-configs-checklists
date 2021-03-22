@@ -56,7 +56,7 @@ openssl req -noout -text -in ocpmgm01.csr
 
 
 
-openssl x509 -req -in ocpmgm01.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out ssl.cert   -days 356 -extensions v3_req -extfile ret.cnf  
+openssl x509 -req -in ocpmgm01.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out ssl.cert   -days 356 -extensions v3_req -extfile ssl.cnf  
 
 #verify
  openssl x509 -noout -text -in ssl.cert 
