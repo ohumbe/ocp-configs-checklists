@@ -14,6 +14,9 @@ CN  = localhost
 [req_ext]
 subjectAltName = @alt_names
 [alt_names]
+DNS.1 = localhost
+DNS.2 = quay-server
+IP.1 = 192.168.122.25
 
 EOF
 
