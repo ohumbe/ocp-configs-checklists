@@ -52,7 +52,7 @@ openssl req -noout -text -in ocpmgm01.csr
 
 #make unpassword protected key
 
-openssl rsa -in localhost.key -out key.unencrypted.pem 
+openssl rsa -in localhost.key -out key.unencrypted.key 
 
 #certs 
 
@@ -65,3 +65,5 @@ openssl x509 -req -in ocpmgm01.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateser
  openssl x509 -noout -text -in ssl.cert 
 
 
+#validate conf at quay-config then download untar and move to $QUAY/config
+#restart quay on 8443
