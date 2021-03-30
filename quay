@@ -1,0 +1,8 @@
+export UPSTREAM_NAMESPACE='openshift-release-dev'
+export UPSTREAM_REPOSITORY='ocp-release'
+export LOCAL_NAMESPACE='ocp4'
+export LOCAL_REPOSITORY='openshift4'
+oc adm release mirror -a ${LOCAL_SECRET_JSON} \
+--from=quay.io/${UPSTREAM_NAMESPACE}/${UPSTREAM_REPOSITORY}/${RELEASE_NAME}:${OCP_RELEASE} \
+--to-release-image=${LOCAL_REG}/${LOCAL_NAMESPACE}/${LOCAL_REPO}:${OCP_RELEASE} \
+--to=${LOCAL_REG}/${LOCAL_NAMESPACE}
