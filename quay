@@ -14,7 +14,8 @@ subscription-manager list --available
 subscription-manager attach --pool=<pool_id>
 yum update -y
 
-
+exit 
+#run as regular user
 
 sudo yum install -y podman jq anisble httpd-tools
 sudo yum module install -y container-tools
@@ -27,17 +28,17 @@ sudo firewall-cmd --permanent --add-port=443/tcp
 sudo firewall-cmd --reload
 
 
-exit
-epxort REDROOT=/opt/redhat
-mkdir $REDROOT
+
+export REDROOT=/opt/redhat
+sudo mkdir $REDROOT
 export QUAY=$REDROOT/quay
-mkdir -p $QUAY/postgres-quay
-setfacl -m u:26:-wx $QUAY/postgres-quay
+sudo mkdir -p $QUAY/postgres-quay
+sudo setfacl -m u:26:-wx $QUAY/postgres-quay
 sudo podman run -d --rm --name postgresql-quay   -e POSTGRESQL_USER=quayuser   -e POSTGRESQL_PASSWORD=quaypass   -e POSTGRESQL_DATABASE=quay   -e POSTGRESQL_ADMIN_PASSWORD=adminpass   -p 5432:5432   -v $QUAY/postgres-quay:/var/lib/pgsql/data:Z   registry.redhat.io/rhel8/postgresql-10:1
 sudo podman exec -it postgresql-quay /bin/bash -c 'echo "CREATE EXTENSION IF NOT EXISTS pg_trgm" | psql -d quay -U postgres'
 sudo podman run -d --rm --name redis   -p 6379:6379   -e REDIS_PASSWORD=strongpassword   registry.redhat.io/rhel8/redis-5:1
 sudo podman run --rm -it --name quay_config -p 8080:8080 registry.redhat.io/quay/quay-rhel8:v3.4.3 config secret
-mkdir $QUAY/config
+sudo mkdir $QUAY/config
 cp ~/Downloads/quay-config.tar.gz $QUAY/config
 cd $QUAY/config
 tar xvf quay-config.tar.gz
@@ -46,6 +47,7 @@ mkdir $QUAY/storage
 setfacl -m u:1001:-wx $QUAY/storage
 sudo podman run -d --rm -p 8080:8080 	--name=quay	-v $QUAY/config:/conf/stack:Z	-v $QUAY/storage:/datastorage:Z	registry.redhat.io/quay/quay-rhel8:v3.4.3
 
+sudo chown -R root:sysadmin $REDROOT
 
 cat config/config.yaml
 #expected ouput
@@ -193,7 +195,7 @@ openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -
 
 
 
-chown -R root:sysadmin $REDROOT
+
 #make merged pull secret 
 #getlocalpullsecret
 podman login -u openshift -p redhat --authfile $HOME/pullsecret_config.json localhost:8080
