@@ -1,12 +1,14 @@
-useradd sysadmin
 su
+useradd sysadmin
+passwd 
+#BadPassword12!@
 visudo
-#add user to sudoers    sysadmin      ALL=(ALL)      ALL
+#add user to sudoers    sysadmin    ALL=(ALL) ALL
 
 
 
-
-subscription-manager register --username=<user_name> --password=<password>
+#need sub info skip if not clean vm
+subscription-manager register -username=<user_name> --password=<password>
 subscription-manager refresh
 subscription-manager list --available
 subscription-manager attach --pool=<pool_id>
@@ -25,7 +27,10 @@ sudo firewall-cmd --permanent --add-port=443/tcp
 sudo firewall-cmd --reload
 
 
-export QUAY=${HOME}
+exit
+epxort REDROOT=/opt/redhat
+mkdir $REDROOT
+export QUAY=$REDROOT/quay
 mkdir -p $QUAY/postgres-quay
 setfacl -m u:26:-wx $QUAY/postgres-quay
 sudo podman run -d --rm --name postgresql-quay   -e POSTGRESQL_USER=quayuser   -e POSTGRESQL_PASSWORD=quaypass   -e POSTGRESQL_DATABASE=quay   -e POSTGRESQL_ADMIN_PASSWORD=adminpass   -p 5432:5432   -v $QUAY/postgres-quay:/var/lib/pgsql/data:Z   registry.redhat.io/rhel8/postgresql-10:1
@@ -42,669 +47,686 @@ setfacl -m u:1001:-wx $QUAY/storage
 sudo podman run -d --rm -p 8080:8080 	--name=quay	-v $QUAY/config:/conf/stack:Z	-v $QUAY/storage:/datastorage:Z	registry.redhat.io/quay/quay-rhel8:v3.4.3
 
 
-[mike@quay ~]$ cat config/config.yaml
-AUTHENTICATION_TYPE: Database
-AVATAR_KIND: local
-BITTORRENT_FILENAME_PEPPER: 05f19199-7fb2-4a66-b92c-ea257d6a1a66
-BUILDLOGS_REDIS:
-	host: 192.168.68.80
-	password: strongpassword
-	port: 6379
-DATABASE_SECRET_KEY: fd075ea5-1d3f-4a2c-b767-2adcbe8c2c2e
-DB_CONNECTION_ARGS:
-	autorollback: true
-	threadlocals: true
-DB_URI: postgresql://quayuser:quaypass@192.168.68.80:5432/quay
-DEFAULT_TAG_EXPIRATION: 2w
-DISTRIBUTED_STORAGE_CONFIG:
-	default:
-    	- LocalStorage
-    	- storage_path: /datastorage/registry
-DISTRIBUTED_STORAGE_DEFAULT_LOCATIONS: []
-DISTRIBUTED_STORAGE_PREFERENCE:
-	- default
-FEATURE_ACI_CONVERSION: false
-FEATURE_ACTION_LOG_ROTATION: false
-FEATURE_ANONYMOUS_ACCESS: true
-FEATURE_APP_REGISTRY: false
-FEATURE_APP_SPECIFIC_TOKENS: true
-FEATURE_BITBUCKET_BUILD: false
-FEATURE_BLACKLISTED_EMAILS: false
-FEATURE_BUILD_SUPPORT: false
-FEATURE_CHANGE_TAG_EXPIRATION: true
-FEATURE_DIRECT_LOGIN: true
-FEATURE_GITHUB_BUILD: false
-FEATURE_GITHUB_LOGIN: false
-FEATURE_GITLAB_BUILD: false
-FEATURE_GOOGLE_LOGIN: false
-FEATURE_INVITE_ONLY_USER_CREATION: false
-FEATURE_MAILING: false
-FEATURE_NONSUPERUSER_TEAM_SYNCING_SETUP: false
-FEATURE_PARTIAL_USER_AUTOCOMPLETE: true
-FEATURE_PROXY_STORAGE: false
-FEATURE_REPO_MIRROR: false
-FEATURE_REQUIRE_TEAM_INVITE: true
-FEATURE_RESTRICTED_V1_PUSH: true
-FEATURE_SECURITY_NOTIFICATIONS: false
-FEATURE_SECURITY_SCANNER: false
-FEATURE_SIGNING: false
-FEATURE_STORAGE_REPLICATION: false
-FEATURE_TEAM_SYNCING: false
-FEATURE_USER_CREATION: true
-FEATURE_USER_LAST_ACCESSED: true
-FEATURE_USER_LOG_ACCESS: false
-FEATURE_USER_METADATA: false
-FEATURE_USER_RENAME: false
-FEATURE_USERNAME_CONFIRMATION: true
-FRESH_LOGIN_TIMEOUT: 10m
-GITHUB_LOGIN_CONFIG: {}
-GITHUB_TRIGGER_CONFIG: {}
-GITLAB_TRIGGER_KIND: {}
-GPG2_PRIVATE_KEY_FILENAME: signing-private.gpg
-GPG2_PUBLIC_KEY_FILENAME: signing-public.gpg
-LDAP_ALLOW_INSECURE_FALLBACK: false
-LDAP_EMAIL_ATTR: mail
-LDAP_UID_ATTR: uid
-LDAP_URI: ldap://localhost
-LOG_ARCHIVE_LOCATION: default
-LOGS_MODEL: database
-LOGS_MODEL_CONFIG: {}
-MAIL_DEFAULT_SENDER: support@quay.io
-MAIL_PORT: 587
-MAIL_USE_AUTH: false
-MAIL_USE_TLS: false
-PREFERRED_URL_SCHEME: http
-REGISTRY_TITLE: Project Quay
-REGISTRY_TITLE_SHORT: Project Quay
-REPO_MIRROR_INTERVAL: 30
-REPO_MIRROR_TLS_VERIFY: true
-SEARCH_MAX_RESULT_PAGE_COUNT: 10
-SEARCH_RESULTS_PER_PAGE: 10
-SECRET_KEY: 12980f60-fb99-4469-a778-3863157b839d
-SECURITY_SCANNER_INDEXING_INTERVAL: 30
-SERVER_HOSTNAME: 192.168.68.80:8080
-SETUP_COMPLETE: true
-SUPER_USERS:
-	- quayadmin
-TAG_EXPIRATION_OPTIONS:
-	- 0s
-	- 1d
-	- 1w
-	- 2w
-	- 4w
-TEAM_RESYNC_STALE_TIME: 30m
-TESTING: false
-USE_CDN: false
-USER_EVENTS_REDIS:
-	host: 192.168.68.80
-	password: strongpassword
-	port: 6379
-USER_RECOVERY_TOKEN_LIFETIME: 30m
-USERFILES_LOCATION: default
+cat config/config.yaml
+#expected ouput
+#AUTHENTICATION_TYPE: Database
+##AVATAR_KIND: local
+#BITTORRENT_FILENAME_PEPPER: 05f19199-7fb2-4a66-b92c-ea257d6a1a66
+#BUILDLOGS_REDIS:
+#	host: 192.168.68.80
+#	password: strongpassword
+#	port: 6379
+#DATABASE_SECRET_KEY: fd075ea5-1d3f-4a2c-b767-2adcbe8c2c2e
+#DB_CONNECTION_ARGS:
+#	autorollback: true
+#	threadlocals: true
+#DB_URI: postgresql://quayuser:quaypass@192.168.68.80:5432/quay
+#DEFAULT_TAG_EXPIRATION: 2w
+#DISTRIBUTED_STORAGE_CONFIG:
+#	default:
+#    	- LocalStorage
+#    	- storage_path: /datastorage/registry
+#DISTRIBUTED_STORAGE_DEFAULT_LOCATIONS: []
+#DISTRIBUTED_STORAGE_PREFERENCE:
+#	- default
+#FEATURE_ACI_CONVERSION: false
+#FEATURE_ACTION_LOG_ROTATION: false
+#FEATURE_ANONYMOUS_ACCESS: true
+#FEATURE_APP_REGISTRY: false
+#FEATURE_APP_SPECIFIC_TOKENS: true
+#FEATURE_BITBUCKET_BUILD: false
+#FEATURE_BLACKLISTED_EMAILS: false
+#FEATURE_BUILD_SUPPORT: false
+##FEATURE_CHANGE_TAG_EXPIRATION: true
+#FEATURE_DIRECT_LOGIN: true
+#FEATURE_GITHUB_BUILD: false
+#FEATURE_GITHUB_LOGIN: false
+#FEATURE_GITLAB_BUILD: false
+#FEATURE_GOOGLE_LOGIN: false
+#FEATURE_INVITE_ONLY_USER_CREATION: false
+#FEATURE_MAILING: false
+#FEATURE_NONSUPERUSER_TEAM_SYNCING_SETUP: false
+#FEATURE_PARTIAL_USER_AUTOCOMPLETE: true
+#FEATURE_PROXY_STORAGE: false
+#FEATURE_REPO_MIRROR: false
+#FEATURE_REQUIRE_TEAM_INVITE: true
+#FEATURE_RESTRICTED_V1_PUSH: true
+#FEATURE_SECURITY_NOTIFICATIONS: false
+#FEATURE_SECURITY_SCANNER: false
+#FEATURE_SIGNING: false
+#FEATURE_STORAGE_REPLICATION: false
+#FEATURE_TEAM_SYNCING: false
+#FEATURE_USER_CREATION: true
+#FEATURE_USER_LAST_ACCESSED: true
+#FEATURE_USER_LOG_ACCESS: false
+#FEATURE_USER_METADATA: false
+#FEATURE_USER_RENAME: false
+#FEATURE_USERNAME_CONFIRMATION: true
+#FRESH_LOGIN_TIMEOUT: 10m
+#GITHUB_LOGIN_CONFIG: {}
+#GITHUB_TRIGGER_CONFIG: {}
+#GITLAB_TRIGGER_KIND: {}
+#GPG2_PRIVATE_KEY_FILENAME: signing-private.gpg
+#GPG2_PUBLIC_KEY_FILENAME: signing-public.gpg
+#LDAP_ALLOW_INSECURE_FALLBACK: false
+#LDAP_EMAIL_ATTR: mail
+#LDAP_UID_ATTR: uid
+#LDAP_URI: ldap://localhost
+#LOG_ARCHIVE_LOCATION: default
+#LOGS_MODEL: database
+#LOGS_MODEL_CONFIG: {}
+#MAIL_DEFAULT_SENDER: support@quay.io
+#MAIL_PORT: 587
+#MAIL_USE_AUTH: false
+#MAIL_USE_TLS: false
+#PREFERRED_URL_SCHEME: http
+#REGISTRY_TITLE: Project Quay
+#REGISTRY_TITLE_SHORT: Project Quay
+#REPO_MIRROR_INTERVAL: 30
+#REPO_MIRROR_TLS_VERIFY: true
+##SEARCH_MAX_RESULT_PAGE_COUNT: 10
+#SEARCH_RESULTS_PER_PAGE: 10
+#SECRET_KEY: 12980f60-fb99-4469-a778-3863157b839d
+#SECURITY_SCANNER_INDEXING_INTERVAL: 30
+#SERVER_HOSTNAME: 192.168.68.80:8080
+#SETUP_COMPLETE: true
+#SUPER_USERS:
+#	- quayadmin
+##TAG_EXPIRATION_OPTIONS:
+#	- 0s
+#	- 1d
+#	- 1w
+#	- 2w
+#	- 4w
+#TEAM_RESYNC_STALE_TIME: 30m
+#TESTING: false
+#USE_CDN: false
+#USER_EVENTS_REDIS:
+#	host: 192.168.68.80
+#	password: strongpassword
+#	port: 6379
+#USER_RECOVERY_TOKEN_LIFETIME: 30m
+#USERFILES_LOCATION: default
+#
 
 
-pull-secret.json -> my cloud.redhat.com secret + quay creds added 
+chown -R root:sysadmin $REDROOT
+#make merged pull secret 
+#getlocalpullsecret
+podman login -u openshift -p redhat --authfile $HOME/pullsecret_config.json localhost:8080
+##get pull secret from redhat cloud.redhat.com put in file$HOME/ocppullsecret_config.json
+jq -c --argjson var "$(jq .auths /pullsecret_config.json)" '.auths += $var' $HOME/ocppullsecret.json > $HOME/merged_pullsecret.json
+#remember one line no spaces
+#verify
+jq . $HOME/merged_pullsecret.json
 
 
-[mike@quay ~]$ ./mirror-registry
+
+#for more detailed instructions on mirror see https://github.com/Prestovich/ocp-configs-checklists/blob/main/ocp-install
+#highlevel over view
+
+
+./mirror-registry
 + PORT=8080
 + UPSTREAM_REGISTRY=quay.io
 + PRODUCT_REPO=openshift-release-dev
 + RELEASE_NAME=ocp-release
 + OCP_RELEASE=4.6.17-x86_64
-+ LOCAL_REGISTRY=192.168.68.80:8080
++ LOCAL_REGISTRY=localhost:8080
 + LOCAL_REPOSITORY=ocp4/openshift4
-+ LOCAL_SECRET_JSON=pull-secret.json
-+ oc adm -a pull-secret.json release mirror --from=quay.io/openshift-release-dev/ocp-release:4.6.17-x86_64 --to=192.168.68.80:8080/ocp4/openshift4 --to-release-image=192.168.68.80:8080/ocp4/openshift4:4.6.17-x86_64 --insecure
-info: Mirroring 121 images to 192.168.68.80:8080/ocp4/openshift4 ...
-192.168.68.80:8080/
-  ocp4/openshift4
-	blobs:
-  	quay.io/openshift-release-dev/ocp-release sha256:b24086fcc584e1fd52a0c2c0223a068ddcbbf79ef1b73e1c82a648524f8834cd 1.376KiB
-  	quay.io/openshift-release-dev/ocp-release sha256:a1cc543928c92f47e5b4cb7f2a688534a40c062d38fa29c7ae9d934f3637b203 1.673KiB
-  	quay.io/openshift-release-dev/ocp-release sha256:d13b7d1cd0f41bd5be7b7ffea6d7d8276dfbdfdd495ff9c661da7e8b82b5b98e 419.9KiB
-  	quay.io/openshift-release-dev/ocp-release sha256:622b8bb95c1476c2d692f6cb44dceab43d18ab3896d50fec375ca74dd162cad4 4.962MiB
-  	quay.io/openshift-release-dev/ocp-release sha256:6d2ba61611a1444154b173863a8f6448c9abf5940a4290adc103c1c4d50dca51 10.5MiB
-  	quay.io/openshift-release-dev/ocp-release sha256:5720e83760864f8abb993099cafca7476973e8814c2ce42e555d020017c3665a 19.62MiB
-  	quay.io/openshift-release-dev/ocp-release sha256:f895238caed4adeab5c96b4c6693cef6e8e566e45858d73adfd64d2f5fd10253 70.45MiB
-	blobs:
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c925ccc6d29addfc9cdc8d9c0add5e74665aa6c0c17eef4940e3eab07181cfd7 1.364KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b24086fcc584e1fd52a0c2c0223a068ddcbbf79ef1b73e1c82a648524f8834cd 1.376KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:927653fd3e6be7280b25b39340f3166ea8f32898667f01800afc89bd99b39943 1.834KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c7eba847f80847985c5d7855ba36eb9d95cc5c1355bb3e1ba7e1f6b6f7c6a67 2.563KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7ec9975e5ec1cb570edd7cc510c327df41b3f961c0b29ffaf772dab8f7a78592 4.115KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ab7eb2be740d0ee661d7745e5b25bc6de2e59bceb64230316d6324e0e28d5248 4.56KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ec0b92c53a4a3516e06c99e695e370e1cf8baff8435bb02c2bface6e78f95d70 4.604KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5f0ac5ac167526e52f5dce3f2696a7e3a37edaa9ce5d23dee24fa9d1250668c3 4.77KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a69dc05f9f5658ab58c96670ba7a7817aa63275ab4d7c0c8e6b97ce362d3ca88 4.865KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6a27b3d30452c12701799bfcbf0e832a9388a26f881df09140b2f71a4125ba44 4.871KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:079c13e7aed76f79201431a6b8fd8c4807ccbaa45dc3c000655323eb91eec09a 4.899KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5c3dfea56cd83e0b09d7906031ec56113b945c368db3f7c41ac3a79aedaddb81 4.903KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5cf0cac3452c21490d57013a1ac3e49d96dd2492a7a271493786fec416d3a8c9 4.903KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2cf7f5c27cfcc2707838354e34b8ad6de647c34b448dc5bebea205df70e3ce89 4.966KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:93cbed593eae9a6b18aecee77d780a11d365139fb7540071fdfcb12fba846c26 4.986KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6076d16e3e87df0ce6fcb3b343bbac11c564165038a6ec3ec96a260b5584d96c 4.987KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af93cf7afda376c12674210c54f9f3b93b1d6530a86c6cb891424d3342adab6d 5.071KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:243a3c1d7242d0cb488f0a8f0fa21d3449f39af7432e5fd07b20c8ad1623ebeb 5.135KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9313caebd89d2767b8dc78273eacbdb44d0999816615f2caf25a8221d16509c0 5.152KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2c6a6a4c2c06503eacef093e82af746bd529cd860e4d9f0e4ea6464a582e7fe7 5.156KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c71cf2a2e83f29888e67c55c56e41421d87302aed978ba461ea42b01fc74a9c3 5.17KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6f6fcb7c13e719dda8fa278e72518dc85a9ec17d0321d730ed8e439bbe79b42a 5.197KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3982eaf37f501afbc65243c23d72ef420f5ef4122fbfe7ebbdfbc09f967a7ee8 5.218KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:64e5d849e25950ea54d39f47a3cea85deb73ed8bc5421b158a68c42fcdfd814a 5.285KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d3456df5f24900f99f74191875718329dfec6da74139219c0e3cd5e57a0e30b5 5.345KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bceba04654f5b0c500dd0c6724f29675123de715801a57ccafed78b05bcf6611 5.364KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bae8395299ec0ea7d90371a59a334615e76c4f78bd79b9e3a4465e96cbad169d 5.368KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e16f3f0c0e2c52ab4585b373cbd3a954852cd643723445975e2ce3981fd74f1e 5.385KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:235a550faf2d5c033806dd58da4ec3902a208581cc25adc70f2097d4825067f7 5.387KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:831bb0c3bb4b6d11baf2e5ed7c8fb8deaf813efa4c0b4ed586a87465722f52f3 5.409KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:09ace4d06195266ce714c01429181705b193652b8eb171429fe854873b9f21f7 5.41KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a3f83ee25256e1f66e779868fe1a911de5980a124701c5e6bec57e1d2f359611 5.412KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4f21b8389dfefc564f42591087591b6bfd0ed5e4dd6b7f7fd6c480280c007a14 5.413KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fc99498241a32b33dcc343abbeac08a5fba8578c1f17fbf27e5a9f5b3235054c 5.417KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:460785c85aa8690e8d7a4c171e8908944ff38b7f902cc39d14759e30ce06984a 5.418KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bc11dd8f3cfea617c845172f3e428e4f6bee30553d9279aa47e2591d4d26ec02 5.437KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dcb6eac6a87a1b89239bbfc524a0c9c39073b900101ce51983fdd00812f1451a 5.447KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af210386324de10f3cdd7b111c55386bb424a4e15259b5cdbdc1fd0e15631f06 5.473KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2d75d013de9daf135fb77908cfd88ec490a50271ab2a1966c2ff16bcf1d3f8f2 5.477KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:60fed86ae302628db066663759faf3c90e9e281378d3fc088cbeb3f9c5244369 5.479KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:709bd536d49b52d16da18ab63b1975d4c2c1ebc41c6e9985f22597709bec4ef7 5.48KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fd622adf33ca2897d666b034ab066dae11c0ff87d6cde70689599fda9ad3e37e 5.481KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:558844c269343cd9032e7b14948540fde05043208e8b0913d640a3e26e2f5ef8 5.485KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8ea65df22a41c76389ef98277d7ef78f8e940e81da04638071b1004862882e02 5.5KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5175b7fa02e8f862d19d195e5e2f3317218fc94e87c79d48a29a72f654ad99c3 5.505KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b934238f2047ba787807884ff8ed4398329bbb887c308e6175ec7cf9f0d4759d 5.511KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9847b74a4d4db1bd4c6b027a7e000d8ead5898cc0119d0dea950a75b82f23f83 5.517KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b21e63a54b79e13ab4178e3a1768d94c8e855a2d27206d4ee2771d8bb152089d 5.518KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1a8394b7ab1b62b51ebfaeb2f3c9bf6041aec262f17d22b71e7d66d8ba7745da 5.519KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dec00b62124656214eceb7283ffb29649ebb08edcfd78e4f0475a44b2b21e62b 5.528KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9698c9b2f25b356f3a7add01f8573213503c731e62f4898c072bc28dff5abd53 5.529KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0586678f82c8c4027836e20bc5fc7babc5e741fcb8703b938ccb2ca79272223d 5.532KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e203c454a14468d19423a1702410858e03fc6da39eb6f06fe986b2082ece7854 5.534KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5d28fdb044c099c331006f74b837929f9b073bc01b7953ba45198fafa48357bc 5.545KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a6849d04d7fea14b108d79e70c849f9883348384f6de35c9fa4d19f160bc3d77 5.545KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:23d075cd613d7b69d7f52208947e15f3d217c822e9024276e344addced19bf70 5.556KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3b104286080e056fbc667eb9597c9b556ab54abb91067f270bcc992f651cb956 5.556KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f3de3d20dcde6d10012ca07fc53a1e54cc0905033f562e338ccf2044bf6307c7 5.557KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:58a7361de87ed05be2e1fe55164baca1f101c08bc5259eef0f8aab678b39451a 5.559KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:84118c97b298fad58e08f3f2f025ff37258d2568b8ad95fab2626aef9506a994 5.559KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c66314d0a09d64ce88e410529ce687914bdd257590c76bc97505243d02f4b409 5.561KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:75f9adeac6dbb697dc12f19ff349ad63d99a0526bb52533d2e1561ada1deb5c6 5.562KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:07341d335d1fa6f9793aa343ab232f5d85f3b9445559b248970204f0ad634c8b 5.569KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b388112c1c9851b108c87333c01d7b647121a2593fd0c71ac9cd5ce67d57af50 5.573KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6213ad85ccdb60b76ffdd849ee667a0d1725b22f0c8a2f12b089ac2ec6867175 5.575KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6a85138d20d83236c966bb8f56c123511d73e4f12442b49cc5a4ed329c0bc4f5 5.576KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c1684a99713b7c94277e42d7eeeef9ecbc68502f4b832e9b33d01f70f5edd561 5.579KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:43fa5e5273b2204c68a2bbb9e9dcbfa35b907878cf0da2f5062ed70e2163465f 5.582KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4abac7558a2a7d56f43cc7968309cc3214443b388c925f3dd167e3c288a32908 5.582KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6bb34bc0436e0d4ae55364e3df1dc87c61a1beff2e265e2a6a0783b8692ed40f 5.582KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:49fa19161dd4d87b3bb73c8313def9368301258e92b22dd275112e0dfd7410c2 5.583KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:995efcde232224403ab44422be2c99e4b4319e63c772e1914ea1567618d88e69 5.592KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f66e6ca5c7ceb73babcb414ca90e96d61893fb99f485396e4acc0cba19c27e37 5.592KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4c78d6357e62d76ab4822e299a33bc8e5d36f7f1c68295e079e51caefe243df5 5.594KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d143f20fcc16af0abe4e7ac45fd82c2f095abae6bb27877328118b542d32f4e3 5.598KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e9c4c8cc17cfbcebabf7d0978877914e8a93d08c04bd1861c84e436abb607d35 5.601KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:db814221e3ae263c8ba3265c4eb367a3a655c5d382594286cfc0a620d896ef16 5.604KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:85823f46a96e6c8670594638e81dd024774d86ea9fa041d1c2b323f9390cd872 5.607KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4a00222d8f882e20ac5a1015bc59796a22b0f767600fcc5027edbc21f47840c1 5.609KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:69548f90aa2d63aac4d656f95c743beee08e45678d12b35b9320c9d749a01c4b 5.609KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:211f12b0e7d08cae76d555166e8522c282bfbbc739c9460c4451d5f4f60b99ac 5.61KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8de037763f7720d408324db9fb9aafed3f1abc297dfe660a6fecdcb1ac65fc1a 5.614KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a8d4ac0b731fa92bba6a8ba35b06ff167121bd79533378364df7ac345a1d5b51 5.62KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:00d7ae418ac3a9a51d9cb05537f2c0a57c7c47c796ae1442d125011b03196fb6 5.625KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:17041fd78962bb8b8e960ef5442a9cbf2652f6dbb328625f91104a355c83c05e 5.627KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3ed6cec114a649d0018aef7d8fb22f034ab1aa88ecfd3a68740963d437e6eff3 5.637KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a9eee5d0080e1174cf94e373d7dbf44aa08c9b2fd77fa17be185ff87e1dc0113 5.639KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ff6e6649dc8152cf2fd79e9d90f547eadb631241d14cbc645409c2ec3f2e524d 5.641KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:97a3acf5874715a2ee44160d5462f3d07de57790ceea9916ad059df7fdc9a23b 5.643KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9fe04c95b33988928d80dbf975afa4188357093f4052299f6e25681f2a3c99e8 5.646KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:04ad45baa526ec22df0b2719278ec8463b7887bb2ece710e19fd1c037cc5b498 5.646KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b3b22acc1b24bbdd244652982f77be07c44705402b04a6a3d9e4249f460a0aba 5.65KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:62f786eb3281e7f97661ec4c9e684fe18c1fe2ac79e30d42a732baf213886468 5.655KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0db572217aad32b7b307ccca5e6d20fa0dc26b772b349d443c5806335f67c0c9 5.665KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:151689cc33d3b010335344f281c9f5ccbc9cddb6671fc184fd478ecc0c933481 5.671KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2c64a59c4419f398ecd1ed955a8947360ae16215721812b7684c1c651320906a 5.671KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:14963eea7fd098c5a2265c0e3cf87cb7ef382a19322a3e4b0f9bac5bd77ef2f1 5.673KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd75f99eed4b7d08fb3dfdd53f4bba56f640c4bd562600f8b22cc10a52e2c12e 5.676KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42d946210c75eb8f2aa58465661ce2057dccbe779099ee629e1720ca435e0543 5.677KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1052f016435d5ee6c62e3f66e89f9d979be97843f70cef4bc8f43a0a09e4bb75 5.679KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8c88fec324c6d89ef9134008378cb38f7600ad55c953842fd2a3f1a9615921fc 5.683KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:63ac138b568b2906ab7ce80bbfd575d7268d65efe1f84b2819648b7908b3aa2d 5.686KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9ccc2a354c60032e7fb86aefe22bdf05196147a95cd97d535bd816a63af673be 5.687KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:00595dceab043893af16cf9f8764b14d5aa53109f881f9c8b890d7094656501c 5.689KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6426c734fd35d267f5a2fa5e67a3d7ed317e864802705ebfdf13d347e65d8ec4 5.691KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8627573066a522cb4e0506385739212f6d3fffa4f52eb1f0e504ec198989845e 5.699KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2cbc9daf04d1963c1bc62e51feafb28eaad32fa90970951468e69a09c9bfbe3c 5.711KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b82b15e88af92de70628a312f0cb0c6877d47f7d31ea1c3a79d13d51e208d45f 5.714KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:811505b2a3e08c65af13a086393ab1468e213825710448e436ba7e5406d104ae 5.735KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:756c891ce9cf75993e593026491d032a6ed408d8db1bd48c0af5e405f5d1c57f 5.749KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:61dbcdeb6985cba51ecbc8eb297506def071c5a9fd03dac9bdb548dcd2339bc2 5.756KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:779d3dd79c9bb77b68d91572baf47916827dc286efb0b5b02acd36d9d291c3d3 5.756KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f8256cde17fd2103bee1624fa90705fea6af6207c1957a6e91c08fbdececb26c 5.798KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3aeeff06a829af5942d81c5efec1ec7c5111156d84a6fbfe664da67a3f7b569a 5.816KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7b0f6abcc9c37ca7a9f34b604fb9ed997246ea5e35fe69721083e34542ee2c10 5.827KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d68deaeabcd3ec24913c3c50499a8c8dd1cae16d32ebf44411c50a9144598802 5.838KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e4b2636ebe2d5b8ce3dcc8ece70e63aba3531c2cd7cf256209b16ea08ee51552 5.898KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7ce63b69b7f1e4202f9075d856f760035fbe8e64c735e7ce9d31dcebc2f826b5 5.952KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:35314655311fd02e38d4ee37f6b7e893a91c3876fdf81bc375b02bf658ce5eb2 5.971KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a442a2dc7154016a755c650f868d1aa19b0eacbb61f6c8aaaf2f2b971d13581f 6.118KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bb4101a98c1545831c794d11ac096e4a178e8530138ca84dd6f06f9a8ecf8291 6.155KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:49e7ca7d99cb9125d1a911c7616cb4d53a3bed7924cb31220db8ca601834cf70 6.345KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a21b08069a43d89a4b22a81387fb1db993584348d735613a0648fd41ab2247f8 6.762KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:05816c0ebdf1db009a211aee336406061c42a353959879b1f5734034e2c08ce8 6.843KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d2eb75a7341ac7f52a1caaba87185d56e7f0c2a8044e6a8b1c1f9a89e6a16146 7.889KiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2f7ec6f4b00338f2f34fddcc4db1fb686f3eac5367d96563476a097b1b46beb8 1.157MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:308ad307dcce8361a029977ede90e8d78a90beffd5ffca79962f89559f4f6ebe 2.837MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:049716c3c3bb869595922374b8ef24bdc082f306b782302713c3118acec9019e 3.427MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:622b8bb95c1476c2d692f6cb44dceab43d18ab3896d50fec375ca74dd162cad4 4.962MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0bafa23313a6ce6d71764a0c33e74c0349d1bc3236a5363996f67a8035976ef7 5.086MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cd25f7dc18f2030adb7cd519a8777c308325cb3769a0e63404ff08f709f10a63 5.127MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3f5382b3df84c3af0bfa6733de6e4982101fe2c2686f598000268e89f0431fdd 5.522MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:190363d211443ee67bd214ccf91ae154065efb89b97187cd73752d3df2eb2f7b 5.918MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:51ddd3139c6d92fd9408cd547e910eb0fd40f8febb66728bb98e3e79dcb100b7 6.535MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fab5a9b74538b2049239869dd1da0616d01cc9e5a9669855256f10f1f4c245cc 7.404MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c3a620f3c93bea133bd48247836aa3b120e72add4402ff0e0d1d494fa3599e0 7.996MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dc66054117c1ef991e97d5cc29f1a1c67a8a17256852a43f3ae99e16c2b36a71 8.134MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4ce759cac49cab12dd9c219e670e4c1a6798eac6d7cf6ded1c556efd89943373 8.335MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:eab32e9c5ecb8ea2cb8fbc25e162b3070c8621863a828cd9f6bb024ef090761f 8.602MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c14bcc332ba123f3696ba3ec0f2298944d7d2fbb8b417513ff9b778d19b2a0b3 9.027MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e1dcee76a8f99ec9259850acba90154730361cdbd1455ee0917c755fccccc302 9.153MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6d2ba61611a1444154b173863a8f6448c9abf5940a4290adc103c1c4d50dca51 10.5MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f6adaeb4762a33cad849fe432bc8206eb26c826b151cafc2068c703701652d76 10.58MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2d0a78873fb792c0484a275b4bea1e6d36b912c1a0ec6c3d0cf080f26d1fa3a8 10.62MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f9e45816f5fb842312d5a879954109ec852b2bcba92b167dca12384a07f39ac5 10.86MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:53603c838f858007d1614c73d451cea142f822de562ceef91176c22b11131f93 12.43MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:914bb33607653cfe6b91de528c051d74897b42e5eb82e07ee64fb80dfac8db13 12.76MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cbb5c033b5ae99998d204a1632fa47d9e90ccc63979d18b654a5fb5c5c261145 12.93MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9a73e85253aee81f30079479e3d8c2b8b8623e19247998f2046d51579902d645 13.58MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2b8419c16b2f7eee71c5184c65d39f83332977b63a70a2c50fd0102568899224 13.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d26657e6571be791db3fe39f9eb00ba44d54769aebb8669b17bb6c28c6045852 13.71MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9ca59c0e6ab816d0c8f45bfd98af6470afef088ba456d993f78123badf34064a 13.94MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:05436276f720146dada3965e54b78c89efa0be83f5ff31147219f1f3c94d89e0 14.08MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:df7faf39b4f89661ab95650cac039d7ac60f1f50d52ce615d683343c6293d5a4 14.2MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f713b96311f81d705f6dd0f647b326b36308ee5d9403065db61b1767c563c395 14.26MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f2847cb5a2905134a2ebeab77bc3741b2d3fe72447d0fa14367f004ffabf537d 14.26MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a620ae4e8804a44488e5399ee1e9a5f1bf9099533fb6823339dcd2d6eb7ef465 14.29MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:851b4952d38af0c5ef3cc603a992737fecdefce514f6fdf4e2acf6bfe68dd49a 14.34MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af222cc0729f390934accb0dd04ea25147c9feffd5b7af7a16d0fbc197224bce 14.45MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5ac0f284d749cb39632ec10924a09cad13f6a1f1c8440a3e562997df15300afa 14.53MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:57b494da2d9ae4829984b5b47240d00c1487240ec585763bbc3fa13586db7507 14.71MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9cd1d02e1283e77b67538b16756bb49ff7c3148ba58da92f1e1bbc8087fd66ad 14.85MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c3f3f0b514b27e3c8c83cc01a7e68db61ef5279f36791ff3a6fd554a270d640 15.06MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9378b2b3909adf6a24119ec9aaf41e806718f56afbe95919393a32d9bc6493dd 15.26MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fcb88f21649d6c943e69bf31cb74f6aa8aae15e188aba26bd9c431ed0a8365a7 15.28MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e2d987225dad2e1d2a2afee19d0715a51a5f8639478aa3652d9ef59dbee6d362 15.35MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1856dcd6a89d825400366da9dca4bab7044983c28fbe6d68508d269ed135e5ea 15.36MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a7ba7b624c5d860d1e52af4d94a85ba2727176b27c3c1eec3b0a584f0c31d9e5 15.43MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9bc11ceae8bfe5ab5316bf0a3361cb21f176496dbe8dbd5486f2f9ed25e4f84c 16.02MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1d0e4ca04eba6ae2f82bc307a69b114864145642aef1be231943ea70804278a5 16.1MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42633199ce7470025b24f2b731f5d8fca0a8114fb14a0cfa56cdadab64556b1a 17.12MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:811d6c27ac1136a02adee59c46ca536d0408621f33287f72b03364c37420bf8c 17.24MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:20e35074f005d2447e7ea2b05d8556e6ad7b9980ded85d705deb746559dbfe5b 17.4MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fe92b88eb4dbf2fbd8298567c15b338da75ec67aa3e08ecee6635f9ff59bd952 17.65MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:913d76a08d197ecfa30d0dd0e6d96949594589dbf56bd842bcec85f66d77932a 17.88MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:015bcce22446de30285b0c37d601024a9f9594b9dad1cd8e8104552e4294daa5 17.91MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:68a343c1b39f8228cc1912e3ed67a1030abb94db64e98184c503d3c5e64fc478 17.94MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3984115d784f1725031cd2af3d27bbe40fd156f4f7bd5d6be969b4a2d44c6463 18.62MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1140c654bae4b01a62e5774b60a2657d03ba8c4e368fd5275a8b8df572bf52b0 18.83MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af7859a67a3b09787ea1f05ceee8410a998ac11c1bf703a16dcbc9b2e06e2a03 19.08MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:59e341fbb93dd5800921a5c580d51cda59552ec4ac946f15513c17ce95ee6f32 19.35MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1c636c472017458f99da13ee955c149949edebe82ab11aa00e44118c61b64c90 19.49MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5720e83760864f8abb993099cafca7476973e8814c2ce42e555d020017c3665a 19.62MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b06a834737b0ed3557a419084982b82fce4e6c3bf126a1a6c218b9531666676f 19.92MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0e8d972a15b3d5a75daa2f10f7858e111ad8ad37bcf71f589e293f577d0bddc6 20.74MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:25258398f6245d6b8e2f21c788a1bb78c296c6a5fbe6ce7d2ffe1c052dcb1bdd 20.87MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd30db42a776ce04dcf09a6c16e99d03da31f18d76f2ea88e05039d943dd571c 21.59MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c00e941b96fa9ac7086798d04f3652139c37b9b3c6891a6044ba89143f087600 21.71MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:aefcc61d7fa1e94b97e85048393419a3fd95052e55ee4afc5f268cec5055534d 22.29MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f06129f76a794c175b58c73937f99def84930bf9a42782454c04e76068479060 22.87MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d44720055d9d69106db9e9785b39f98d0a5efadb80452a1cfe8caf6c67549775 23.2MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2ef3bf78a85afdc8d7344c4b7cd20e824109aad3e255bfe8c9ce3fc45f5558c7 23.23MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bc4cd53cdc699e87da3bca4bb47467a2336430b2408169de82db1b363e478633 23.45MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:df2aff1eb743dfcee89b0860cc7c784906aff1b4bfbe664f1cc011dad5184e38 24.23MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7c11e5c68427dd635ef82d32a0e4837cf8c58cdc206b3af6ba7b1da3d39494c3 25.28MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cbb47aeac6ac708fa56d3d47fc3fbd84673e1646c72d580ad55c456cdd3937b0 26.59MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d0ea6883f5f1bb0ad6dddb7c76dfdaf5dfbe4f5af8ad1de0a37e2bcf00e9f227 27MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e218c1109f1b9752244d8d7c9a15857b5543f1b52781c1c11b8c1c5cba12c78c 27.05MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:082e1f26865abc19bac870f7ec71be76b614aacdfa72b0cce75d53b08988868b 27.18MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:63a345003bc6c4c8e61b0e2e8466057fdeea27cef27720c55e9e68c2b73c7ada 27.95MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:189d7f27618c0b915ede205accb3889d297c6677bfe834df8545a42eb7280b22 28.08MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:775b0956370dc882bec77f11b494283955f1195b08d2d7e3b5cce57fb38ac7e7 28.41MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e92898da413ed68ef8779e70feaa84ef0c1cd8da82a0409a6fbc282ea36c1f22 28.93MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d0afd03b99a03906e10c919afa74d7884a442e877dc934fd34e8415186f21652 29.14MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a0e92156ec06e4dd13c15c2860925abcf59d55734f5f2c831a33e89e93fa4097 30.97MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fedfeaad6ca301f9dfd34c03c64f860fe03a77700b3140a3038647599f8f1863 32.48MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f656d2a9e76d7901413a4e17a5004668a78359454face1edf3b4a6efbc5da194 32.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4756895d2c31d7a00128d4dd2756e912dbdc4ec7027babd45716433fa318bd51 32.74MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7d1517c44cfb508202cbb38aa5e505660d31c902e91583528fa3f76fd01ff675 35.38MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd1b7c7f3699c2917ab2e804415e5aad9842d5c519c55aae9b647954e19adfa0 35.51MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e9061a12bde882386e5dc70d7648356fe90eed586d43da87ef5b789d6b83dabe 36.52MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b5ee74d2635b94a82200ad91b83cca70c2bdee716cc693d0ad85b4e825f128da 36.77MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:04e33c68cac6f511369c780ed4368f39e33c2fcc8f86e2534f73f6fdd94098b6 36.93MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c9adaca91941f1f48656fd4d49e52278d368c9a78ca083bd286362052c0b20b7 37.85MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:77d85d56a71b6d3fc646753133cd28efb2f2adfd1aa23cd334b275e1bbe05ef4 39.18MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2eb23a30f46556c8d5175f5cf3a91f97cd04d2f7eafbf3cfc890faf3bd74c881 41.64MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ef7e69092cacf556656bc4f06ab9698b9f64914dee12358c293804c54345ff98 43.06MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9af517e7f1c33ea78aa831fd63bc77c1bb3bb09dac8ae7dfd79ac1993f972e6d 44.12MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:96791d55bd561114c989a1f48e38a8fd9943f431e6b032c1f44f7513e0dfee4c 44.56MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:520cf13d756d86075a9e899cd739d1a2a71cd9a5f4eb37b2b6270b91bf23c782 46.4MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:887df62977e89df32deadfb7afc95a9bd304c4632531fd19ff08f6dd9cc88b11 60.98MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f895238caed4adeab5c96b4c6693cef6e8e566e45858d73adfd64d2f5fd10253 70.45MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c0f83de3cefb8867de7600e97355083b3931b5284dd0e9bc752d1bb49d792c00 74.26MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:95efbc6c0025e6746c9c573fafb81c4af15895e756b1d06a8d0092ebdd7bf10f 74.96MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:17785b47ca890b77594e9abbe19385ffb7d6a29ca70287c0ed26ef88a38cb44d 75.43MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c5875e05e28de95cbafd6484be70710725176aec2bff8e0318517554d6efa7a7 75.77MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0132bcf79200b3efa07cafc9e5698da9b6273edc5e57a37de2026dd70b957d4b 81.65MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4116e4c4776f15e3cf4eb8a0931760a57a5893fa0d646075f54477917fa86a06 81.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6db56c0cc37908c6568ef787ed4da67374196884c088081014b0bf8c2c8ca4a3 86.79MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:73002063032c50c9ccb4ffe71efa1a3c08b1268e82aebecba8b4d3872cdab609 92MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ff092b2f9936efe53cd7ee9e123ea99bddcea628b7105d0ccb58baec46921e72 94.94MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8dca89f3344197b4da86a916d9808a2bd524f1d123bea561654f86cf3dfe2802 97.16MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b207c27c7e4aae1ad386fa64fc5daa284df1ce9387f8d3e3460ecb6d63ccb2e7 103.1MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e3573b5e5229c6e5a6fb132a48e0b25643b6688327d49874601cccce507e1848 112.8MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b1f7b3b05b2531477c4fc867e67dc9873ea559e24c08492a546ae4a395fc889f 117.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8db1e43678df39f89af62b14412b3c40e8f38379da697ab095532fe482ebc361 119.3MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a1f86f60842bac744a0d87bcae376196b3ab85338f1aefdac4328b4d5a96f59f 121.2MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8afd8cd88dfdb8a23dac5237e56442348a397d6a0e96fa2a0e8db033033089e8 127.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7136f590b4655021cbbb0ca0f6c3fdf724ec0736d924aa0e6896e0daadee15d8 145MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:efd7378718a22f251f9d223b24fe5d50caf2268adf9f54f9f2ab54ad1028ebb7 145.2MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:15d9469c96d7de72aec50bd6b68e3647a2e84d5bd35a493f98628bce48df99fe 149.6MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cd02e0b4f5db6c084e09134d79200b2d02948d0a00a27ebecd8c2057f0cb850b 190.1MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42e9afa8b5347b58a2f962f2dee4d96e2100d41cb19a96d48f090b01c5e96830 211.7MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1cdb19d4805403749d1612f28999b3d2dbdf1a1ed1f8f1738db74fe952c84ad1 217.1MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7992e51adeca78510afe99327bf61750d0897242022a5021a5c445a099ee616b 430.6MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:739a5ccd995b64c361d25b372fd92375b87d81fd329d7e3d2b2e16727d1ee3b1 477.5MiB
-  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fc14f7925bff0c785f3df52232993db3c6d3b3480e63a7d7be8c3c4007073cb2 869.3MiB
-	manifests:
-  	sha256:011b6819853dd51f795ac875b6ab338f6d85e9b31fa4fb8b5c7b2d580d9266bf -> 4.6.17-ironic-static-ip-manager
-  	sha256:031ae90b770b7c9c1ff50c7b743e231edb0dcd84429e36872f8ae55c4b1e2d71 -> 4.6.17-ironic
-  	sha256:05bb57d016d99aeac7551708169dc4e0dcdee2eb6c7a4993dcdf4f0302aeae3e -> 4.6.17-cluster-autoscaler
-  	sha256:0a2adfca1e4dfd4e1fb4cba0034815b479ee89099575f577bbc6f6665149f58a -> 4.6.17-libvirt-machine-controllers
-  	sha256:0e47fef3cbb542606a431a5df804a7162e59c06f5fd974d2ae99373fc0b1c4e6 -> 4.6.17-cli-artifacts
-  	sha256:0e60df057a17adb6907182acb58237e65e89d31ce4cc8d020c3be0367eab62a4 -> 4.6.17-prometheus-config-reloader
-  	sha256:0ef0017421096229a0ebcb72f58c2ca7eecb95038f524b3b3e682d6ee1364bd4 -> 4.6.17-cluster-ingress-operator
-  	sha256:10125089091e0b5c3e0ab17d528afca68919eb77451c10d0282da0250e729072 -> 4.6.17-jenkins-agent-nodejs
-  	sha256:10aed22423b0585831869fc82b4b8f722a6fade481709b6dcaf8a180549fabf2 -> 4.6.17-gcp-machine-controllers
-  	sha256:1309762c80489864d7f511a14b3dc2b334ed4cd3be5d0fe364165f2928f04fc2 -> 4.6.17-kube-rbac-proxy
-  	sha256:1e530273358bc0e1d2ad6be861dba8e490004d0ee450c3e6eb2b853eee08a986 -> 4.6.17-csi-driver-manila
-  	sha256:1f589fff0f5c942d0671c41c5d8767e013faf59e6f9d7bfa39f584c7978aa288 -> 4.6.17-tests
-  	sha256:1f7def9c8e151b8aa19e04fbdd59338be758bf4f40a670c0f555c3e385ea5a81 -> 4.6.17-baremetal-installer
-  	sha256:203f38e0c1d662bd8568ed754850b36c905803e5681d393a78f393a99814a5a2 -> 4.6.17-keepalived-ipfailover
-  	sha256:2071dafe534e9427ea41981d64cb96547f17ad7c43141fc75c1b2b9a4c81cb25 -> 4.6.17-prometheus-node-exporter
-  	sha256:2091029d2e3ef73a36fdbf46de1fa69b60ac869ce183b9e8da8f42ab54040d22 -> 4.6.17-aws-ebs-csi-driver
-  	sha256:2211b098ee569e07f5fee93787d542329759454eab8ca2da2c4c4fac193a3493 -> 4.6.17-csi-external-attacher
-  	sha256:22719a6c0cd5176264841869e447d82e2269348a389988d1ee02d004b8d7952c -> 4.6.17-csi-external-resizer
-  	sha256:22fce9467c72c6097d858f885ffcbb48e96299390378604dc3889d87d74ab050 -> 4.6.17-cluster-update-keys
-  	sha256:2532e34e011af076a48d771ceb71851ab10629d796f3b726bd7fda1704b853d7 -> 4.6.17-ironic-hardware-inventory-recorder
-  	sha256:2901a101ee277d87c3d96a1ef35d42ba53ff8b0d2a47e3029dc0ad338343149e -> 4.6.17-haproxy-router
-  	sha256:29ef86fe8fcfa00988d9a48d9f3251f371eebf3760c8f680b7f2623d6152681c -> 4.6.17-etcd
-  	sha256:3033d8d9253ac1d6c87f58e6621732b6e91b6e8c0faefdb72ab95496472f16fc -> 4.6.17-multus-route-override-cni
-  	sha256:363aa1dd4536eff630123a6c1df4c94061824ddf0ebc84ab4f4e5207d1ffe758 -> 4.6.17-ovirt-csi-driver
-  	sha256:395d7bb0e9ba2f6cc1ab7178f5494981e18bab303ffe28aea31541cc1c6c9515 -> 4.6.17-machine-config-operator
-  	sha256:39ac816c8207ee242ba05606e4e85b7d2328176a4bd518fde05cdf481a60fe52 -> 4.6.17-hyperkube
-  	sha256:3aadb9c183a6b0ab8800188167aaf8ab71bf1d814739050e8a13e7e12312bc80 -> 4.6.17-machine-os-content
-  	sha256:3b4b20037566fa3998df877a4cd23c1b7f15e4badf86659d126aae8a04cda42a -> 4.6.17-installer
-  	sha256:3d313077512ef8ab1a10861f6ee7a85796acedf26cde74ef5b86f9eb4f296e60 -> 4.6.17-cli
-  	sha256:3d99191cebe0a6235702a912052386f190194db8e18a6cf5483c21750cb32731 -> 4.6.17-prom-label-proxy
-  	sha256:3f968cb0ca3116a7869cb41b4bfcb5ac537ff9d0ea21b3c4b69d8248881a1408 -> 4.6.17-tools
-  	sha256:4221d96a57cf6587dd05557b510431f3daad8d86e04de93524b32386958e0907 -> 4.6.17-multus-admission-controller
-  	sha256:444eb246ed44654f88950bdcd49e60a440701d5d605a4c630dc7d7406ffdc8e4 -> 4.6.17-baremetal-operator
-  	sha256:45d328bad92cdad73930e0c12eb46662580b3a370c5f38c48d569d6bc32bb5a6 -> 4.6.17-local-storage-static-provisioner
-  	sha256:4a89f2c94c9a03261eb60ce881e8d1e52843264ff63b8736d1fc91438c59b944 -> 4.6.17-oauth-proxy
-  	sha256:4aba38ed40d8bb4cf6e6b4dc2ffa1f7ab16cde46a57162f8acbdc680a20e37af -> 4.6.17-openshift-state-metrics
-  	sha256:4dca183c3a8b18038fe9106c7fa7a8c288b085cd69da27b551d99bc138b6542b -> 4.6.17-kuryr-cni
-  	sha256:4f8366189531a6546adc4476d60f795a2eaa227a07ebce1ac3f970ae8969023d -> 4.6.17-configmap-reloader
-  	sha256:5760cf2d2faefd5f314c53bd34f8d7e0036739043845ffb3cfdc81816fd0caf5 -> 4.6.17-network-metrics-daemon
-  	sha256:5ab8d794061b891d325162e17f816ced009fc18fd5b711f580080c5bb094c909 -> 4.6.17-kuryr-controller
-  	sha256:6001a24babee11165c20ee524c2a1053520c675d57c16fab7c46c9d1404098b7 -> 4.6.17-baremetal-runtimecfg
-  	sha256:60d874ced7236ab9c8ecb8a1948e547c0eb528fb7f33184a57281cc57a490953 -> 4.6.17-cluster-etcd-operator
-  	sha256:619cbfc3d832d030f868846024b1076e74ed0d98cbfbacfcd641a7150712b2d9 -> 4.6.17-aws-machine-controllers
-  	sha256:62189e2818c7e56f05cf681cdf7ff6630329ff032c7d6a90286a5f4a55ea6a8a -> 4.6.17-cluster-version-operator
-  	sha256:6647f7263989403889bca3e2e119e4c79a3107699a491c122d03189725ac26ef -> 4.6.17-cluster-policy-controller
-  	sha256:6678c228295d7557ec45ab562a2979ad77dadafba23bf189237809e746ad70d5 -> 4.6.17-kube-proxy
-  	sha256:66b54476133e113862ba143e362049056fb212a9526b850282f25048c0739b2d -> 4.6.17-oauth-apiserver
-  	sha256:67e5f6854cb09103ad5a657cd04051fe2d28112f311469160f98acecc45440be -> 4.6.17-deployer
-  	sha256:68df2c5fdd8c259980020bd108b3a9338af7f16d387e4a8852bee35213731992 -> 4.6.17-jenkins-agent-base
-  	sha256:6d7f15a3f8fdb9f6b417ce33dc04a80c8917ae41c4623e791719bea81a794571 -> 4.6.17-oauth-server
-  	sha256:7080dde1e5b83001e95f77dafda7250f79a4a41dd733ac45219cff0338e6bc92 -> 4.6.17-operator-lifecycle-manager
-  	sha256:70ce4ea6ac187161effda1929b579697839d8953c1a21703b650afba1e401d9f -> 4.6.17-console-operator
-  	sha256:72ca9175ff550fcfa45d2dbed57db783eb547e5e03308edd8aea84693535c290 -> 4.6.17-csi-node-driver-registrar
-  	sha256:7450e4a112aabfa72b58c1733900a0ff9cfb4004601228ad8d5799284bb8b754 -> 4.6.17-cluster-kube-apiserver-operator
-  	sha256:750b0fe06d9c10616d0b384234d78accccde2d89a82f3daa7453cfaf4da735bf -> 4.6.17-kube-state-metrics
-  	sha256:76df6164759a4f1aeb76e31a1c2bad5bdcf77c656621d5fb98c47ec703b11f71 -> 4.6.17-thanos
-  	sha256:771b1a83691fd9dd01caa1a43a7b5a743930171e33916214f9248f82045895bb -> 4.6.17-cluster-samples-operator
-  	sha256:78e5f2985df85a452781fe8e6ceb0138a0d14eec698bb4a84a1bbd577cfd171f -> 4.6.17-multus-cni
-  	sha256:7c7ef10a8ea09844dcb9fc1c787c19f779bd8a817bec43785f1996fac1552393 -> 4.6.17-csi-driver-nfs
-  	sha256:803af811cfc9600c4f821742539840ece53a34156ea96328a5b26dafc530648f -> 4.6.17-cluster-network-operator
-  	sha256:8225d096757c2402f9f63e051d0343a3d8ceef3b4527c4684fc25d2644eb4b43 -> 4.6.17-cluster-authentication-operator
-  	sha256:838f0a15bb1b490a9753bc582c04c6a81af7f71199eb4bbfa319d14737b171aa -> 4.6.17-cluster-dns-operator
-  	sha256:83d25c0fd2a6de1a6905aef20ac359353b0624c6ab38aa91c914ad74edcc71cc -> 4.6.17-aws-ebs-csi-driver-operator
-  	sha256:841457ba229b93277d05a9b4b43b75ba1e22dd04eca510691872afc0406b336a -> 4.6.17-cluster-bootstrap
-  	sha256:84de76f6f93d79749eac44af1a102568cee3e6a99757d134872d2663045e27f3 -> 4.6.17-operator-marketplace
-  	sha256:89e380ec8b9104f6a0f23f297a03b6edae48d107ea9c86fe48006bb2904db50e -> 4.6.17-openshift-controller-manager
-  	sha256:8c752b3a74b36bd0ca8410a312872f655854f59174a85dc2acf50d87e39149ea -> 4.6.17-installer-artifacts
-  	sha256:8dadda63fd308f671c39cc3837fe1630d1dafe913ac95e9ee9fe3a33c0aaf69c -> 4.6.17-prometheus
-  	sha256:8eab68b8c4c2a3d35ea620de54e012ab5038c108efc3135c43faa09f71f64bca -> 4.6.17-cluster-kube-scheduler-operator
-  	sha256:940bf3e768e33781933f0b1fb0b04ffd3744f1c7ada77a89c8bf918661d9c97f -> 4.6.17-baremetal-machine-controllers
-  	sha256:97a606263ae3ffad8582b5b20cafb01b0474706c972cc282dc0198aa348f4ec7 -> 4.6.17-cluster-storage-operator
-  	sha256:99e33e16d37359b46a5e89f5e8e569dcb2c59e88c989e2032607463045a1af4d -> 4.6.17-ovirt-csi-driver-operator
-  	sha256:9aa3725668126a3b00f9c7a9e635c45d86445ed63c1a524a243ab1e9e08f2708 -> 4.6.17-pod
-  	sha256:9ddcbf025b82d2733aebc17294ea2ccd40b11081fec7c9c892dd682fe5c9db30 -> 4.6.17-cluster-node-tuning-operator
-  	sha256:a35b6210c49f4631b3b6e6b2ffea01bb41813ca1bff9fcf7510d7739262446ed -> 4.6.17-cluster-csi-snapshot-controller-operator
-  	sha256:a40a5a44dd718263b52dbc2939c7b670ed8334e07a2e03fb0f1cb0518767a654 -> 4.6.17-ovirt-machine-controllers
-  	sha256:a4aa719f8df89a05560f0b9ca9b858b5b8afe02bb1136b27597c79bfecc4a34e -> 4.6.17-prometheus-operator
-  	sha256:a568267d69e956df71909022276a800a7d12ce84169b3dad10febacff6a87009 -> 4.6.17-k8s-prometheus-adapter
-  	sha256:a7b23f38d1e5be975a6b516739689673011bdfa59a7158dc6ca36cefae169c18 -> 4.6.17-x86_64
-  	sha256:ac11b91bdc87703c9bf2edf31aa692b0c4046e25303ed565fba420cbfd395c47 -> 4.6.17-csi-external-provisioner
-  	sha256:ac98c5081cb390c80aad1a4065cbb365fc51e87ddda96a763f0a8b3d0d060d89 -> 4.6.17-docker-builder
-  	sha256:ace37dd6ef282baf85980773af1c9225e24a00d421a64047171d2c3051f1eb49 -> 4.6.17-grafana
-  	sha256:ad205e2b61581abdd83ecc2e41f278b06da92d91fb733b0f00c6e3aaf094ae1b -> 4.6.17-ironic-inspector
-  	sha256:ae0cac2fbd89a8a9d51c68ec5c7daa747727df781852ce90d72f21ea819d3ae7 -> 4.6.17-cluster-machine-approver
-  	sha256:b0a64d7beba03650bee37447138e0dd4c7127e98d04c742232806bbf711d8553 -> 4.6.17-coredns
-  	sha256:b6ce0685f1cdeaa5b851f1e94cb91b9155d30aced3db3b32076daf350ee9770f -> 4.6.17-openshift-apiserver
-  	sha256:b6dc9d93e8316a4e86780f4c50839e2179e044cec6535194a3752d3d901943a8 -> 4.6.17-must-gather
-  	sha256:b9901d5a9ffe7019ecd8c4962d619cb38e471d1a7623e747f7099962263eace8 -> 4.6.17-csi-livenessprobe
-  	sha256:b9f664a3df1adaa00f5ddc1634501ef3b977663ddbace7a127d8232536800aae -> 4.6.17-jenkins
-  	sha256:bb27f81bf5e3608a0aa2d93888edea97aa195ee6cff27b96a062e9bf2189a783 -> 4.6.17-aws-pod-identity-webhook
-  	sha256:bc80c2817f6923fc4459508c0bf754809e89cfea5321ef143fedf5ec5b084a1f -> 4.6.17-service-ca-operator
-  	sha256:bcc1fb20f06f00829727cb46ff21e22103fd4c737fdcbbf2fab13121f31ebcbd -> 4.6.17-sdn
-  	sha256:c43bd03cbac5b49f5c84402ce29374a8cde3f00e423c5662af27ccf6466e884f -> 4.6.17-mdns-publisher
-  	sha256:c447c7e2fb5b3426ce368a116c3223fee59e35a8c6a4c1d20cf521498d5b676a -> 4.6.17-csi-driver-manila-operator
-  	sha256:c4d475ee03eb1d406044cf87fbfceb79aa8154f49a89ea202c183ed7247b87b6 -> 4.6.17-cluster-image-registry-operator
-  	sha256:c5a0bcd124948499f12561693b71ab82a80587238ff0ef987ab6a482c6c7168d -> 4.6.17-csi-snapshot-controller
-  	sha256:c6d1c461ad984eacdfe67159358a8e6a4f84d94ad69bea6963ad8b20319c090b -> 4.6.17-machine-api-operator
-  	sha256:c82c63c6a484aae36cf1c383fe3684134f3f1f6928a3bcbbc45cd77588aa00ea -> 4.6.17-ironic-machine-os-downloader
-  	sha256:c9fafc6ec5421b0c253bb3856ffa66deb9f39dd214bb3a57e5945abd7fec984d -> 4.6.17-ovn-kubernetes
-  	sha256:cef5b97f737160f5bd5b9b88587ef0ee80fb01950ff544ea9e93b0d1857b2c45 -> 4.6.17-cloud-credential-operator
-  	sha256:d0de30a7f8b8c8c8df0180c4fc113a8710f87877976f5222ee76488f27eee6ea -> 4.6.17-telemeter
-  	sha256:d2b32754ab4de8faa65913e38e699fd4d4d0011fe13cf673fc2386e7d84e8967 -> 4.6.17-azure-machine-controllers
-  	sha256:d51ce39c4107caef2b8da828d5d0c4615fd704497f6e7f3f99b399f1af696fa4 -> 4.6.17-cluster-monitoring-operator
-  	sha256:d5219766f5f60faefa8bae908f549a78183899c9be81a9586bd868c49fcc6e35 -> 4.6.17-cluster-openshift-apiserver-operator
-  	sha256:d5c5d85e69fe04d65c422c94a53b25a9a44fd7e583e8539aa12653378b495a32 -> 4.6.17-kube-storage-version-migrator
-  	sha256:d73a1c0fbd5494b27146cf2d0617bd678579cc8caf30f2a189ce1763106f3f42 -> 4.6.17-cluster-kube-controller-manager-operator
-  	sha256:d90e82a20168bcae12ccc9fd0d26b885dbe24c98e5e3489530505b293dabd31c -> 4.6.17-multus-whereabouts-ipam-cni
-  	sha256:dd086ff5a1699dee85b3259943c9911590fb35135862379ae23a43ae45766026 -> 4.6.17-operator-registry
-  	sha256:ddf7315a5f6d80d5787f4abaeb03513b73dbe177a5ee1da31d7e43bc5cbc4379 -> 4.6.17-insights-operator
-  	sha256:e089b9443226e55bd013c54096d4e1eb7e99b4c8dc8da75c92a4c7227ac56484 -> 4.6.17-docker-registry
-  	sha256:e6d91424d0ed5709033b41ccf694429b4726e458321db17dac229d1201f65707 -> 4.6.17-container-networking-plugins
-  	sha256:e7cf5326debad3c3a014ede288653df66fd9c40cb65eb3df83893f4a3819ed00 -> 4.6.17-prometheus-alertmanager
-  	sha256:e8f1b6b04e268c04cdd4adafacce43372703f6b8b35184168f7d897933f59f1b -> 4.6.17-cluster-autoscaler-operator
-  	sha256:e9e9cbfeb3fafcd6e59a970286358d1a074ef75727a34328a19114f6b3a9982a -> 4.6.17-ironic-ipa-downloader
-  	sha256:ea4fe93f569d14226615ce393add33f4804c83d2b96e9dfd132c9c2fa6b2ae35 -> 4.6.17-jenkins-agent-maven
-  	sha256:ea7c39405eb97a27f44574f6b3a3157f1b5161773bf5e96f8bbd7e8a1f3af2cd -> 4.6.17-cluster-kube-storage-version-migrator-operator
-  	sha256:eef6b463eed162f50b42ef5b5aca1fad905e4c7f2fd5b61dd6ede3e73ef5442a -> 4.6.17-console
-  	sha256:f1f94bcea9a7ae20cba9cf0feabfde7f244f0ab97dfd7c2b0972864664db5fde -> 4.6.17-csi-external-snapshotter
-  	sha256:f20d7988c16a9bf4e0ddb647b30ef0e161fe7c7847838f1de01eacb363478de4 -> 4.6.17-cluster-openshift-controller-manager-operator
-  	sha256:f41c0685f12d9a44b185d7f78685a677d9910321b4ded3b6f6d63640b1344f72 -> 4.6.17-cluster-config-operator
-  	sha256:f8283a95e6af1fb139189331526e0f194d994757963a68ade2d1731a19e1d69d -> 4.6.17-openstack-machine-controllers
-  stats: shared=5 unique=244 size=6.223GiB ratio=0.98
-
-phase 0:
-  192.168.68.80:8080 ocp4/openshift4 blobs=249 mounts=0 manifests=121 shared=5
-
-info: Planning completed in 23.65s
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:fc14f7925bff0c785f3df52232993db3c6d3b3480e63a7d7be8c3c4007073cb2 869.3MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:c9adaca91941f1f48656fd4d49e52278d368c9a78ca083bd286362052c0b20b7 37.85MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:15d9469c96d7de72aec50bd6b68e3647a2e84d5bd35a493f98628bce48df99fe 149.6MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:9378b2b3909adf6a24119ec9aaf41e806718f56afbe95919393a32d9bc6493dd 15.26MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:95efbc6c0025e6746c9c573fafb81c4af15895e756b1d06a8d0092ebdd7bf10f 74.96MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:913d76a08d197ecfa30d0dd0e6d96949594589dbf56bd842bcec85f66d77932a 17.88MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:b207c27c7e4aae1ad386fa64fc5daa284df1ce9387f8d3e3460ecb6d63ccb2e7 103.1MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:8db1e43678df39f89af62b14412b3c40e8f38379da697ab095532fe482ebc361 119.3MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:d0afd03b99a03906e10c919afa74d7884a442e877dc934fd34e8415186f21652 29.14MiB
-uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:53603c838f858007d1614c73d451cea142f822de562ceef91176c22b11131f93 12.43MiB
-sha256:e7cf5326debad3c3a014ede288653df66fd9c40cb65eb3df83893f4a3819ed00 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-alertmanager
-sha256:f41c0685f12d9a44b185d7f78685a677d9910321b4ded3b6f6d63640b1344f72 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-config-operator
-sha256:a35b6210c49f4631b3b6e6b2ffea01bb41813ca1bff9fcf7510d7739262446ed 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-csi-snapshot-controller-operator
-sha256:7080dde1e5b83001e95f77dafda7250f79a4a41dd733ac45219cff0338e6bc92 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-lifecycle-manager
-sha256:39ac816c8207ee242ba05606e4e85b7d2328176a4bd518fde05cdf481a60fe52 192.168.68.80:8080/ocp4/openshift4:4.6.17-hyperkube
-sha256:011b6819853dd51f795ac875b6ab338f6d85e9b31fa4fb8b5c7b2d580d9266bf 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-static-ip-manager
-sha256:83d25c0fd2a6de1a6905aef20ac359353b0624c6ab38aa91c914ad74edcc71cc 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-ebs-csi-driver-operator
-sha256:0e47fef3cbb542606a431a5df804a7162e59c06f5fd974d2ae99373fc0b1c4e6 192.168.68.80:8080/ocp4/openshift4:4.6.17-cli-artifacts
-sha256:d90e82a20168bcae12ccc9fd0d26b885dbe24c98e5e3489530505b293dabd31c 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-whereabouts-ipam-cni
-sha256:1e530273358bc0e1d2ad6be861dba8e490004d0ee450c3e6eb2b853eee08a986 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-manila
-sha256:60d874ced7236ab9c8ecb8a1948e547c0eb528fb7f33184a57281cc57a490953 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-etcd-operator
-sha256:10aed22423b0585831869fc82b4b8f722a6fade481709b6dcaf8a180549fabf2 192.168.68.80:8080/ocp4/openshift4:4.6.17-gcp-machine-controllers
-sha256:e089b9443226e55bd013c54096d4e1eb7e99b4c8dc8da75c92a4c7227ac56484 192.168.68.80:8080/ocp4/openshift4:4.6.17-docker-registry
-sha256:8c752b3a74b36bd0ca8410a312872f655854f59174a85dc2acf50d87e39149ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-installer-artifacts
-sha256:84de76f6f93d79749eac44af1a102568cee3e6a99757d134872d2663045e27f3 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-marketplace
-sha256:22fce9467c72c6097d858f885ffcbb48e96299390378604dc3889d87d74ab050 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-update-keys
-sha256:bcc1fb20f06f00829727cb46ff21e22103fd4c737fdcbbf2fab13121f31ebcbd 192.168.68.80:8080/ocp4/openshift4:4.6.17-sdn
-sha256:9aa3725668126a3b00f9c7a9e635c45d86445ed63c1a524a243ab1e9e08f2708 192.168.68.80:8080/ocp4/openshift4:4.6.17-pod
-sha256:3aadb9c183a6b0ab8800188167aaf8ab71bf1d814739050e8a13e7e12312bc80 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-os-content
-sha256:9ddcbf025b82d2733aebc17294ea2ccd40b11081fec7c9c892dd682fe5c9db30 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-node-tuning-operator
-sha256:1309762c80489864d7f511a14b3dc2b334ed4cd3be5d0fe364165f2928f04fc2 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-rbac-proxy
-sha256:2091029d2e3ef73a36fdbf46de1fa69b60ac869ce183b9e8da8f42ab54040d22 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-ebs-csi-driver
-sha256:68df2c5fdd8c259980020bd108b3a9338af7f16d387e4a8852bee35213731992 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-base
-sha256:4a89f2c94c9a03261eb60ce881e8d1e52843264ff63b8736d1fc91438c59b944 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-proxy
-sha256:940bf3e768e33781933f0b1fb0b04ffd3744f1c7ada77a89c8bf918661d9c97f 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-machine-controllers
-sha256:4aba38ed40d8bb4cf6e6b4dc2ffa1f7ab16cde46a57162f8acbdc680a20e37af 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-state-metrics
-sha256:0a2adfca1e4dfd4e1fb4cba0034815b479ee89099575f577bbc6f6665149f58a 192.168.68.80:8080/ocp4/openshift4:4.6.17-libvirt-machine-controllers
-sha256:99e33e16d37359b46a5e89f5e8e569dcb2c59e88c989e2032607463045a1af4d 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-csi-driver-operator
-sha256:395d7bb0e9ba2f6cc1ab7178f5494981e18bab303ffe28aea31541cc1c6c9515 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-config-operator
-sha256:45d328bad92cdad73930e0c12eb46662580b3a370c5f38c48d569d6bc32bb5a6 192.168.68.80:8080/ocp4/openshift4:4.6.17-local-storage-static-provisioner
-sha256:e6d91424d0ed5709033b41ccf694429b4726e458321db17dac229d1201f65707 192.168.68.80:8080/ocp4/openshift4:4.6.17-container-networking-plugins
-sha256:6001a24babee11165c20ee524c2a1053520c675d57c16fab7c46c9d1404098b7 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-runtimecfg
-sha256:838f0a15bb1b490a9753bc582c04c6a81af7f71199eb4bbfa319d14737b171aa 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-dns-operator
-sha256:619cbfc3d832d030f868846024b1076e74ed0d98cbfbacfcd641a7150712b2d9 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-machine-controllers
-sha256:e9e9cbfeb3fafcd6e59a970286358d1a074ef75727a34328a19114f6b3a9982a 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-ipa-downloader
-sha256:2071dafe534e9427ea41981d64cb96547f17ad7c43141fc75c1b2b9a4c81cb25 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-node-exporter
-sha256:1f589fff0f5c942d0671c41c5d8767e013faf59e6f9d7bfa39f584c7978aa288 192.168.68.80:8080/ocp4/openshift4:4.6.17-tests
-sha256:4f8366189531a6546adc4476d60f795a2eaa227a07ebce1ac3f970ae8969023d 192.168.68.80:8080/ocp4/openshift4:4.6.17-configmap-reloader
-sha256:cef5b97f737160f5bd5b9b88587ef0ee80fb01950ff544ea9e93b0d1857b2c45 192.168.68.80:8080/ocp4/openshift4:4.6.17-cloud-credential-operator
-sha256:4dca183c3a8b18038fe9106c7fa7a8c288b085cd69da27b551d99bc138b6542b 192.168.68.80:8080/ocp4/openshift4:4.6.17-kuryr-cni
-sha256:5760cf2d2faefd5f314c53bd34f8d7e0036739043845ffb3cfdc81816fd0caf5 192.168.68.80:8080/ocp4/openshift4:4.6.17-network-metrics-daemon
-sha256:d5c5d85e69fe04d65c422c94a53b25a9a44fd7e583e8539aa12653378b495a32 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-storage-version-migrator
-sha256:72ca9175ff550fcfa45d2dbed57db783eb547e5e03308edd8aea84693535c290 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-node-driver-registrar
-sha256:76df6164759a4f1aeb76e31a1c2bad5bdcf77c656621d5fb98c47ec703b11f71 192.168.68.80:8080/ocp4/openshift4:4.6.17-thanos
-sha256:22719a6c0cd5176264841869e447d82e2269348a389988d1ee02d004b8d7952c 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-resizer
-sha256:a40a5a44dd718263b52dbc2939c7b670ed8334e07a2e03fb0f1cb0518767a654 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-machine-controllers
-sha256:ad205e2b61581abdd83ecc2e41f278b06da92d91fb733b0f00c6e3aaf094ae1b 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-inspector
-sha256:b0a64d7beba03650bee37447138e0dd4c7127e98d04c742232806bbf711d8553 192.168.68.80:8080/ocp4/openshift4:4.6.17-coredns
-sha256:5ab8d794061b891d325162e17f816ced009fc18fd5b711f580080c5bb094c909 192.168.68.80:8080/ocp4/openshift4:4.6.17-kuryr-controller
-sha256:ddf7315a5f6d80d5787f4abaeb03513b73dbe177a5ee1da31d7e43bc5cbc4379 192.168.68.80:8080/ocp4/openshift4:4.6.17-insights-operator
-sha256:89e380ec8b9104f6a0f23f297a03b6edae48d107ea9c86fe48006bb2904db50e 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-controller-manager
-sha256:d0de30a7f8b8c8c8df0180c4fc113a8710f87877976f5222ee76488f27eee6ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-telemeter
-sha256:8225d096757c2402f9f63e051d0343a3d8ceef3b4527c4684fc25d2644eb4b43 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-authentication-operator
-sha256:a7b23f38d1e5be975a6b516739689673011bdfa59a7158dc6ca36cefae169c18 192.168.68.80:8080/ocp4/openshift4:4.6.17-x86_64
-sha256:29ef86fe8fcfa00988d9a48d9f3251f371eebf3760c8f680b7f2623d6152681c 192.168.68.80:8080/ocp4/openshift4:4.6.17-etcd
-sha256:6678c228295d7557ec45ab562a2979ad77dadafba23bf189237809e746ad70d5 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-proxy
-sha256:bb27f81bf5e3608a0aa2d93888edea97aa195ee6cff27b96a062e9bf2189a783 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-pod-identity-webhook
-sha256:1f7def9c8e151b8aa19e04fbdd59338be758bf4f40a670c0f555c3e385ea5a81 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-installer
-sha256:803af811cfc9600c4f821742539840ece53a34156ea96328a5b26dafc530648f 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-network-operator
-sha256:6647f7263989403889bca3e2e119e4c79a3107699a491c122d03189725ac26ef 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-policy-controller
-sha256:d73a1c0fbd5494b27146cf2d0617bd678579cc8caf30f2a189ce1763106f3f42 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-controller-manager-operator
-sha256:eef6b463eed162f50b42ef5b5aca1fad905e4c7f2fd5b61dd6ede3e73ef5442a 192.168.68.80:8080/ocp4/openshift4:4.6.17-console
-sha256:ace37dd6ef282baf85980773af1c9225e24a00d421a64047171d2c3051f1eb49 192.168.68.80:8080/ocp4/openshift4:4.6.17-grafana
-sha256:8dadda63fd308f671c39cc3837fe1630d1dafe913ac95e9ee9fe3a33c0aaf69c 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus
-sha256:f1f94bcea9a7ae20cba9cf0feabfde7f244f0ab97dfd7c2b0972864664db5fde 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-snapshotter
-sha256:b9901d5a9ffe7019ecd8c4962d619cb38e471d1a7623e747f7099962263eace8 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-livenessprobe
-sha256:bc80c2817f6923fc4459508c0bf754809e89cfea5321ef143fedf5ec5b084a1f 192.168.68.80:8080/ocp4/openshift4:4.6.17-service-ca-operator
-sha256:c9fafc6ec5421b0c253bb3856ffa66deb9f39dd214bb3a57e5945abd7fec984d 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovn-kubernetes
-sha256:78e5f2985df85a452781fe8e6ceb0138a0d14eec698bb4a84a1bbd577cfd171f 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-cni
-sha256:841457ba229b93277d05a9b4b43b75ba1e22dd04eca510691872afc0406b336a 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-bootstrap
-sha256:4221d96a57cf6587dd05557b510431f3daad8d86e04de93524b32386958e0907 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-admission-controller
-sha256:0e60df057a17adb6907182acb58237e65e89d31ce4cc8d020c3be0367eab62a4 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-config-reloader
-sha256:70ce4ea6ac187161effda1929b579697839d8953c1a21703b650afba1e401d9f 192.168.68.80:8080/ocp4/openshift4:4.6.17-console-operator
-sha256:d51ce39c4107caef2b8da828d5d0c4615fd704497f6e7f3f99b399f1af696fa4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-monitoring-operator
-sha256:3b4b20037566fa3998df877a4cd23c1b7f15e4badf86659d126aae8a04cda42a 192.168.68.80:8080/ocp4/openshift4:4.6.17-installer
-sha256:3d313077512ef8ab1a10861f6ee7a85796acedf26cde74ef5b86f9eb4f296e60 192.168.68.80:8080/ocp4/openshift4:4.6.17-cli
-sha256:3f968cb0ca3116a7869cb41b4bfcb5ac537ff9d0ea21b3c4b69d8248881a1408 192.168.68.80:8080/ocp4/openshift4:4.6.17-tools
-sha256:c82c63c6a484aae36cf1c383fe3684134f3f1f6928a3bcbbc45cd77588aa00ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-machine-os-downloader
-sha256:363aa1dd4536eff630123a6c1df4c94061824ddf0ebc84ab4f4e5207d1ffe758 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-csi-driver
-sha256:ea4fe93f569d14226615ce393add33f4804c83d2b96e9dfd132c9c2fa6b2ae35 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-maven
-sha256:62189e2818c7e56f05cf681cdf7ff6630329ff032c7d6a90286a5f4a55ea6a8a 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-version-operator
-sha256:8eab68b8c4c2a3d35ea620de54e012ab5038c108efc3135c43faa09f71f64bca 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-scheduler-operator
-sha256:ae0cac2fbd89a8a9d51c68ec5c7daa747727df781852ce90d72f21ea819d3ae7 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-machine-approver
-sha256:c5a0bcd124948499f12561693b71ab82a80587238ff0ef987ab6a482c6c7168d 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-snapshot-controller
-sha256:b6ce0685f1cdeaa5b851f1e94cb91b9155d30aced3db3b32076daf350ee9770f 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-apiserver
-sha256:b6dc9d93e8316a4e86780f4c50839e2179e044cec6535194a3752d3d901943a8 192.168.68.80:8080/ocp4/openshift4:4.6.17-must-gather
-sha256:b9f664a3df1adaa00f5ddc1634501ef3b977663ddbace7a127d8232536800aae 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins
-sha256:031ae90b770b7c9c1ff50c7b743e231edb0dcd84429e36872f8ae55c4b1e2d71 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic
-sha256:771b1a83691fd9dd01caa1a43a7b5a743930171e33916214f9248f82045895bb 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-samples-operator
-sha256:3d99191cebe0a6235702a912052386f190194db8e18a6cf5483c21750cb32731 192.168.68.80:8080/ocp4/openshift4:4.6.17-prom-label-proxy
-sha256:d5219766f5f60faefa8bae908f549a78183899c9be81a9586bd868c49fcc6e35 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-openshift-apiserver-operator
-sha256:f8283a95e6af1fb139189331526e0f194d994757963a68ade2d1731a19e1d69d 192.168.68.80:8080/ocp4/openshift4:4.6.17-openstack-machine-controllers
-sha256:ac11b91bdc87703c9bf2edf31aa692b0c4046e25303ed565fba420cbfd395c47 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-provisioner
-sha256:e8f1b6b04e268c04cdd4adafacce43372703f6b8b35184168f7d897933f59f1b 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-autoscaler-operator
-sha256:05bb57d016d99aeac7551708169dc4e0dcdee2eb6c7a4993dcdf4f0302aeae3e 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-autoscaler
-sha256:2211b098ee569e07f5fee93787d542329759454eab8ca2da2c4c4fac193a3493 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-attacher
-sha256:dd086ff5a1699dee85b3259943c9911590fb35135862379ae23a43ae45766026 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-registry
-sha256:a4aa719f8df89a05560f0b9ca9b858b5b8afe02bb1136b27597c79bfecc4a34e 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-operator
-sha256:c6d1c461ad984eacdfe67159358a8e6a4f84d94ad69bea6963ad8b20319c090b 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-api-operator
-sha256:c43bd03cbac5b49f5c84402ce29374a8cde3f00e423c5662af27ccf6466e884f 192.168.68.80:8080/ocp4/openshift4:4.6.17-mdns-publisher
-sha256:7c7ef10a8ea09844dcb9fc1c787c19f779bd8a817bec43785f1996fac1552393 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-nfs
-sha256:0ef0017421096229a0ebcb72f58c2ca7eecb95038f524b3b3e682d6ee1364bd4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-ingress-operator
-sha256:2901a101ee277d87c3d96a1ef35d42ba53ff8b0d2a47e3029dc0ad338343149e 192.168.68.80:8080/ocp4/openshift4:4.6.17-haproxy-router
-sha256:f20d7988c16a9bf4e0ddb647b30ef0e161fe7c7847838f1de01eacb363478de4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-openshift-controller-manager-operator
-sha256:444eb246ed44654f88950bdcd49e60a440701d5d605a4c630dc7d7406ffdc8e4 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-operator
-sha256:66b54476133e113862ba143e362049056fb212a9526b850282f25048c0739b2d 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-apiserver
-sha256:97a606263ae3ffad8582b5b20cafb01b0474706c972cc282dc0198aa348f4ec7 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-storage-operator
-sha256:3033d8d9253ac1d6c87f58e6621732b6e91b6e8c0faefdb72ab95496472f16fc 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-route-override-cni
-sha256:67e5f6854cb09103ad5a657cd04051fe2d28112f311469160f98acecc45440be 192.168.68.80:8080/ocp4/openshift4:4.6.17-deployer
-sha256:c4d475ee03eb1d406044cf87fbfceb79aa8154f49a89ea202c183ed7247b87b6 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-image-registry-operator
-sha256:d2b32754ab4de8faa65913e38e699fd4d4d0011fe13cf673fc2386e7d84e8967 192.168.68.80:8080/ocp4/openshift4:4.6.17-azure-machine-controllers
-sha256:750b0fe06d9c10616d0b384234d78accccde2d89a82f3daa7453cfaf4da735bf 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-state-metrics
-sha256:ea7c39405eb97a27f44574f6b3a3157f1b5161773bf5e96f8bbd7e8a1f3af2cd 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-storage-version-migrator-operator
-sha256:c447c7e2fb5b3426ce368a116c3223fee59e35a8c6a4c1d20cf521498d5b676a 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-manila-operator
-sha256:2532e34e011af076a48d771ceb71851ab10629d796f3b726bd7fda1704b853d7 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-hardware-inventory-recorder
-sha256:203f38e0c1d662bd8568ed754850b36c905803e5681d393a78f393a99814a5a2 192.168.68.80:8080/ocp4/openshift4:4.6.17-keepalived-ipfailover
-sha256:6d7f15a3f8fdb9f6b417ce33dc04a80c8917ae41c4623e791719bea81a794571 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-server
-sha256:ac98c5081cb390c80aad1a4065cbb365fc51e87ddda96a763f0a8b3d0d060d89 192.168.68.80:8080/ocp4/openshift4:4.6.17-docker-builder
-sha256:10125089091e0b5c3e0ab17d528afca68919eb77451c10d0282da0250e729072 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-nodejs
-sha256:a568267d69e956df71909022276a800a7d12ce84169b3dad10febacff6a87009 192.168.68.80:8080/ocp4/openshift4:4.6.17-k8s-prometheus-adapter
-sha256:7450e4a112aabfa72b58c1733900a0ff9cfb4004601228ad8d5799284bb8b754 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-apiserver-operator
-info: Mirroring completed in 1m49s (13.75MB/s)
-
-Success
-Update image:  192.168.68.80:8080/ocp4/openshift4:4.6.17-x86_64
-Mirror prefix: 192.168.68.80:8080/ocp4/openshift4
-
-To use the new mirrored repository to install, add the following section to the install-config.yaml:
-
-imageContentSources:
-- mirrors:
-  - 192.168.68.80:8080/ocp4/openshift4
-  source: quay.io/openshift-release-dev/ocp-release
-- mirrors:
-  - 192.168.68.80:8080/ocp4/openshift4
-  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
++ LOCAL_SECRET_JSON=$hOMEpull-secret.json
++ oc adm -a pull-secret.json release mirror --from=quay.io/openshift-release-dev/ocp-release:4.6.17-x86_64 --to=localhost:8080/ocp4/openshift4 --to-release-image=localhost:8080/ocp4/openshift4:4.6.17-x86_64 --insecure
 
 
-To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
+#info: Mirroring 121 images to 192.168.68.80:8080/ocp4/openshift4 ...
+#192.168.68.80:8080/
+#  ocp4/openshift4
+#blobs:
+##  	quay.io/openshift-release-dev/ocp-release sha256:b24086fcc584e1fd52a0c2c0223a068ddcbbf79ef1b73e1c82a648524f8834cd 1.376KiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:a1cc543928c92f47e5b4cb7f2a688534a40c062d38fa29c7ae9d934f3637b203 1.673KiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:d13b7d1cd0f41bd5be7b7ffea6d7d8276dfbdfdd495ff9c661da7e8b82b5b98e 419.9KiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:622b8bb95c1476c2d692f6cb44dceab43d18ab3896d50fec375ca74dd162cad4 4.962MiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:6d2ba61611a1444154b173863a8f6448c9abf5940a4290adc103c1c4d50dca51 10.5MiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:5720e83760864f8abb993099cafca7476973e8814c2ce42e555d020017c3665a 19.62MiB
+#  	quay.io/openshift-release-dev/ocp-release sha256:f895238caed4adeab5c96b4c6693cef6e8e566e45858d73adfd64d2f5fd10253 70.45MiB
+#	blobs:
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c925ccc6d29addfc9cdc8d9c0add5e74665aa6c0c17eef4940e3eab07181cfd7 1.364KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b24086fcc584e1fd52a0c2c0223a068ddcbbf79ef1b73e1c82a648524f8834cd 1.376KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:927653fd3e6be7280b25b39340f3166ea8f32898667f01800afc89bd99b39943 1.834KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c7eba847f80847985c5d7855ba36eb9d95cc5c1355bb3e1ba7e1f6b6f7c6a67 2.563KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7ec9975e5ec1cb570edd7cc510c327df41b3f961c0b29ffaf772dab8f7a78592 4.115KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ab7eb2be740d0ee661d7745e5b25bc6de2e59bceb64230316d6324e0e28d5248 4.56KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ec0b92c53a4a3516e06c99e695e370e1cf8baff8435bb02c2bface6e78f95d70 4.604KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5f0ac5ac167526e52f5dce3f2696a7e3a37edaa9ce5d23dee24fa9d1250668c3 4.77KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a69dc05f9f5658ab58c96670ba7a7817aa63275ab4d7c0c8e6b97ce362d3ca88 4.865KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6a27b3d30452c12701799bfcbf0e832a9388a26f881df09140b2f71a4125ba44 4.871KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:079c13e7aed76f79201431a6b8fd8c4807ccbaa45dc3c000655323eb91eec09a 4.899KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5c3dfea56cd83e0b09d7906031ec56113b945c368db3f7c41ac3a79aedaddb81 4.903KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5cf0cac3452c21490d57013a1ac3e49d96dd2492a7a271493786fec416d3a8c9 4.903KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2cf7f5c27cfcc2707838354e34b8ad6de647c34b448dc5bebea205df70e3ce89 4.966KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:93cbed593eae9a6b18aecee77d780a11d365139fb7540071fdfcb12fba846c26 4.986KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6076d16e3e87df0ce6fcb3b343bbac11c564165038a6ec3ec96a260b5584d96c 4.987KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af93cf7afda376c12674210c54f9f3b93b1d6530a86c6cb891424d3342adab6d 5.071KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:243a3c1d7242d0cb488f0a8f0fa21d3449f39af7432e5fd07b20c8ad1623ebeb 5.135KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9313caebd89d2767b8dc78273eacbdb44d0999816615f2caf25a8221d16509c0 5.152KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2c6a6a4c2c06503eacef093e82af746bd529cd860e4d9f0e4ea6464a582e7fe7 5.156KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c71cf2a2e83f29888e67c55c56e41421d87302aed978ba461ea42b01fc74a9c3 5.17KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6f6fcb7c13e719dda8fa278e72518dc85a9ec17d0321d730ed8e439bbe79b42a 5.197KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3982eaf37f501afbc65243c23d72ef420f5ef4122fbfe7ebbdfbc09f967a7ee8 5.218KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:64e5d849e25950ea54d39f47a3cea85deb73ed8bc5421b158a68c42fcdfd814a 5.285KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d3456df5f24900f99f74191875718329dfec6da74139219c0e3cd5e57a0e30b5 5.345KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bceba04654f5b0c500dd0c6724f29675123de715801a57ccafed78b05bcf6611 5.364KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bae8395299ec0ea7d90371a59a334615e76c4f78bd79b9e3a4465e96cbad169d 5.368KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e16f3f0c0e2c52ab4585b373cbd3a954852cd643723445975e2ce3981fd74f1e 5.385KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:235a550faf2d5c033806dd58da4ec3902a208581cc25adc70f2097d4825067f7 5.387KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:831bb0c3bb4b6d11baf2e5ed7c8fb8deaf813efa4c0b4ed586a87465722f52f3 5.409KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:09ace4d06195266ce714c01429181705b193652b8eb171429fe854873b9f21f7 5.41KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a3f83ee25256e1f66e779868fe1a911de5980a124701c5e6bec57e1d2f359611 5.412KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4f21b8389dfefc564f42591087591b6bfd0ed5e4dd6b7f7fd6c480280c007a14 5.413KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fc99498241a32b33dcc343abbeac08a5fba8578c1f17fbf27e5a9f5b3235054c 5.417KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:460785c85aa8690e8d7a4c171e8908944ff38b7f902cc39d14759e30ce06984a 5.418KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bc11dd8f3cfea617c845172f3e428e4f6bee30553d9279aa47e2591d4d26ec02 5.437KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dcb6eac6a87a1b89239bbfc524a0c9c39073b900101ce51983fdd00812f1451a 5.447KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af210386324de10f3cdd7b111c55386bb424a4e15259b5cdbdc1fd0e15631f06 5.473KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2d75d013de9daf135fb77908cfd88ec490a50271ab2a1966c2ff16bcf1d3f8f2 5.477KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:60fed86ae302628db066663759faf3c90e9e281378d3fc088cbeb3f9c5244369 5.479KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:709bd536d49b52d16da18ab63b1975d4c2c1ebc41c6e9985f22597709bec4ef7 5.48KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fd622adf33ca2897d666b034ab066dae11c0ff87d6cde70689599fda9ad3e37e 5.481KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:558844c269343cd9032e7b14948540fde05043208e8b0913d640a3e26e2f5ef8 5.485KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8ea65df22a41c76389ef98277d7ef78f8e940e81da04638071b1004862882e02 5.5KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5175b7fa02e8f862d19d195e5e2f3317218fc94e87c79d48a29a72f654ad99c3 5.505KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b934238f2047ba787807884ff8ed4398329bbb887c308e6175ec7cf9f0d4759d 5.511KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9847b74a4d4db1bd4c6b027a7e000d8ead5898cc0119d0dea950a75b82f23f83 5.517KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b21e63a54b79e13ab4178e3a1768d94c8e855a2d27206d4ee2771d8bb152089d 5.518KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1a8394b7ab1b62b51ebfaeb2f3c9bf6041aec262f17d22b71e7d66d8ba7745da 5.519KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dec00b62124656214eceb7283ffb29649ebb08edcfd78e4f0475a44b2b21e62b 5.528KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9698c9b2f25b356f3a7add01f8573213503c731e62f4898c072bc28dff5abd53 5.529KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0586678f82c8c4027836e20bc5fc7babc5e741fcb8703b938ccb2ca79272223d 5.532KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e203c454a14468d19423a1702410858e03fc6da39eb6f06fe986b2082ece7854 5.534KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5d28fdb044c099c331006f74b837929f9b073bc01b7953ba45198fafa48357bc 5.545KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a6849d04d7fea14b108d79e70c849f9883348384f6de35c9fa4d19f160bc3d77 5.545KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:23d075cd613d7b69d7f52208947e15f3d217c822e9024276e344addced19bf70 5.556KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3b104286080e056fbc667eb9597c9b556ab54abb91067f270bcc992f651cb956 5.556KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f3de3d20dcde6d10012ca07fc53a1e54cc0905033f562e338ccf2044bf6307c7 5.557KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:58a7361de87ed05be2e1fe55164baca1f101c08bc5259eef0f8aab678b39451a 5.559KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:84118c97b298fad58e08f3f2f025ff37258d2568b8ad95fab2626aef9506a994 5.559KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c66314d0a09d64ce88e410529ce687914bdd257590c76bc97505243d02f4b409 5.561KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:75f9adeac6dbb697dc12f19ff349ad63d99a0526bb52533d2e1561ada1deb5c6 5.562KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:07341d335d1fa6f9793aa343ab232f5d85f3b9445559b248970204f0ad634c8b 5.569KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b388112c1c9851b108c87333c01d7b647121a2593fd0c71ac9cd5ce67d57af50 5.573KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6213ad85ccdb60b76ffdd849ee667a0d1725b22f0c8a2f12b089ac2ec6867175 5.575KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6a85138d20d83236c966bb8f56c123511d73e4f12442b49cc5a4ed329c0bc4f5 5.576KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c1684a99713b7c94277e42d7eeeef9ecbc68502f4b832e9b33d01f70f5edd561 5.579KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:43fa5e5273b2204c68a2bbb9e9dcbfa35b907878cf0da2f5062ed70e2163465f 5.582KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4abac7558a2a7d56f43cc7968309cc3214443b388c925f3dd167e3c288a32908 5.582KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6bb34bc0436e0d4ae55364e3df1dc87c61a1beff2e265e2a6a0783b8692ed40f 5.582KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:49fa19161dd4d87b3bb73c8313def9368301258e92b22dd275112e0dfd7410c2 5.583KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:995efcde232224403ab44422be2c99e4b4319e63c772e1914ea1567618d88e69 5.592KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f66e6ca5c7ceb73babcb414ca90e96d61893fb99f485396e4acc0cba19c27e37 5.592KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4c78d6357e62d76ab4822e299a33bc8e5d36f7f1c68295e079e51caefe243df5 5.594KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d143f20fcc16af0abe4e7ac45fd82c2f095abae6bb27877328118b542d32f4e3 5.598KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e9c4c8cc17cfbcebabf7d0978877914e8a93d08c04bd1861c84e436abb607d35 5.601KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:db814221e3ae263c8ba3265c4eb367a3a655c5d382594286cfc0a620d896ef16 5.604KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:85823f46a96e6c8670594638e81dd024774d86ea9fa041d1c2b323f9390cd872 5.607KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4a00222d8f882e20ac5a1015bc59796a22b0f767600fcc5027edbc21f47840c1 5.609KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:69548f90aa2d63aac4d656f95c743beee08e45678d12b35b9320c9d749a01c4b 5.609KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:211f12b0e7d08cae76d555166e8522c282bfbbc739c9460c4451d5f4f60b99ac 5.61KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8de037763f7720d408324db9fb9aafed3f1abc297dfe660a6fecdcb1ac65fc1a 5.614KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a8d4ac0b731fa92bba6a8ba35b06ff167121bd79533378364df7ac345a1d5b51 5.62KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:00d7ae418ac3a9a51d9cb05537f2c0a57c7c47c796ae1442d125011b03196fb6 5.625KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:17041fd78962bb8b8e960ef5442a9cbf2652f6dbb328625f91104a355c83c05e 5.627KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3ed6cec114a649d0018aef7d8fb22f034ab1aa88ecfd3a68740963d437e6eff3 5.637KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a9eee5d0080e1174cf94e373d7dbf44aa08c9b2fd77fa17be185ff87e1dc0113 5.639KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ff6e6649dc8152cf2fd79e9d90f547eadb631241d14cbc645409c2ec3f2e524d 5.641KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:97a3acf5874715a2ee44160d5462f3d07de57790ceea9916ad059df7fdc9a23b 5.643KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9fe04c95b33988928d80dbf975afa4188357093f4052299f6e25681f2a3c99e8 5.646KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:04ad45baa526ec22df0b2719278ec8463b7887bb2ece710e19fd1c037cc5b498 5.646KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b3b22acc1b24bbdd244652982f77be07c44705402b04a6a3d9e4249f460a0aba 5.65KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:62f786eb3281e7f97661ec4c9e684fe18c1fe2ac79e30d42a732baf213886468 5.655KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0db572217aad32b7b307ccca5e6d20fa0dc26b772b349d443c5806335f67c0c9 5.665KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:151689cc33d3b010335344f281c9f5ccbc9cddb6671fc184fd478ecc0c933481 5.671KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2c64a59c4419f398ecd1ed955a8947360ae16215721812b7684c1c651320906a 5.671KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:14963eea7fd098c5a2265c0e3cf87cb7ef382a19322a3e4b0f9bac5bd77ef2f1 5.673KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd75f99eed4b7d08fb3dfdd53f4bba56f640c4bd562600f8b22cc10a52e2c12e 5.676KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42d946210c75eb8f2aa58465661ce2057dccbe779099ee629e1720ca435e0543 5.677KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1052f016435d5ee6c62e3f66e89f9d979be97843f70cef4bc8f43a0a09e4bb75 5.679KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8c88fec324c6d89ef9134008378cb38f7600ad55c953842fd2a3f1a9615921fc 5.683KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:63ac138b568b2906ab7ce80bbfd575d7268d65efe1f84b2819648b7908b3aa2d 5.686KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9ccc2a354c60032e7fb86aefe22bdf05196147a95cd97d535bd816a63af673be 5.687KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:00595dceab043893af16cf9f8764b14d5aa53109f881f9c8b890d7094656501c 5.689KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6426c734fd35d267f5a2fa5e67a3d7ed317e864802705ebfdf13d347e65d8ec4 5.691KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8627573066a522cb4e0506385739212f6d3fffa4f52eb1f0e504ec198989845e 5.699KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2cbc9daf04d1963c1bc62e51feafb28eaad32fa90970951468e69a09c9bfbe3c 5.711KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b82b15e88af92de70628a312f0cb0c6877d47f7d31ea1c3a79d13d51e208d45f 5.714KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:811505b2a3e08c65af13a086393ab1468e213825710448e436ba7e5406d104ae 5.735KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:756c891ce9cf75993e593026491d032a6ed408d8db1bd48c0af5e405f5d1c57f 5.749KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:61dbcdeb6985cba51ecbc8eb297506def071c5a9fd03dac9bdb548dcd2339bc2 5.756KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:779d3dd79c9bb77b68d91572baf47916827dc286efb0b5b02acd36d9d291c3d3 5.756KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f8256cde17fd2103bee1624fa90705fea6af6207c1957a6e91c08fbdececb26c 5.798KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3aeeff06a829af5942d81c5efec1ec7c5111156d84a6fbfe664da67a3f7b569a 5.816KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7b0f6abcc9c37ca7a9f34b604fb9ed997246ea5e35fe69721083e34542ee2c10 5.827KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d68deaeabcd3ec24913c3c50499a8c8dd1cae16d32ebf44411c50a9144598802 5.838KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e4b2636ebe2d5b8ce3dcc8ece70e63aba3531c2cd7cf256209b16ea08ee51552 5.898KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7ce63b69b7f1e4202f9075d856f760035fbe8e64c735e7ce9d31dcebc2f826b5 5.952KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:35314655311fd02e38d4ee37f6b7e893a91c3876fdf81bc375b02bf658ce5eb2 5.971KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a442a2dc7154016a755c650f868d1aa19b0eacbb61f6c8aaaf2f2b971d13581f 6.118KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bb4101a98c1545831c794d11ac096e4a178e8530138ca84dd6f06f9a8ecf8291 6.155KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:49e7ca7d99cb9125d1a911c7616cb4d53a3bed7924cb31220db8ca601834cf70 6.345KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a21b08069a43d89a4b22a81387fb1db993584348d735613a0648fd41ab2247f8 6.762KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:05816c0ebdf1db009a211aee336406061c42a353959879b1f5734034e2c08ce8 6.843KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d2eb75a7341ac7f52a1caaba87185d56e7f0c2a8044e6a8b1c1f9a89e6a16146 7.889KiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2f7ec6f4b00338f2f34fddcc4db1fb686f3eac5367d96563476a097b1b46beb8 1.157MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:308ad307dcce8361a029977ede90e8d78a90beffd5ffca79962f89559f4f6ebe 2.837MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:049716c3c3bb869595922374b8ef24bdc082f306b782302713c3118acec9019e 3.427MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:622b8bb95c1476c2d692f6cb44dceab43d18ab3896d50fec375ca74dd162cad4 4.962MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0bafa23313a6ce6d71764a0c33e74c0349d1bc3236a5363996f67a8035976ef7 5.086MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cd25f7dc18f2030adb7cd519a8777c308325cb3769a0e63404ff08f709f10a63 5.127MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3f5382b3df84c3af0bfa6733de6e4982101fe2c2686f598000268e89f0431fdd 5.522MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:190363d211443ee67bd214ccf91ae154065efb89b97187cd73752d3df2eb2f7b 5.918MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:51ddd3139c6d92fd9408cd547e910eb0fd40f8febb66728bb98e3e79dcb100b7 6.535MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fab5a9b74538b2049239869dd1da0616d01cc9e5a9669855256f10f1f4c245cc 7.404MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c3a620f3c93bea133bd48247836aa3b120e72add4402ff0e0d1d494fa3599e0 7.996MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:dc66054117c1ef991e97d5cc29f1a1c67a8a17256852a43f3ae99e16c2b36a71 8.134MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4ce759cac49cab12dd9c219e670e4c1a6798eac6d7cf6ded1c556efd89943373 8.335MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:eab32e9c5ecb8ea2cb8fbc25e162b3070c8621863a828cd9f6bb024ef090761f 8.602MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c14bcc332ba123f3696ba3ec0f2298944d7d2fbb8b417513ff9b778d19b2a0b3 9.027MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e1dcee76a8f99ec9259850acba90154730361cdbd1455ee0917c755fccccc302 9.153MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6d2ba61611a1444154b173863a8f6448c9abf5940a4290adc103c1c4d50dca51 10.5MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f6adaeb4762a33cad849fe432bc8206eb26c826b151cafc2068c703701652d76 10.58MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2d0a78873fb792c0484a275b4bea1e6d36b912c1a0ec6c3d0cf080f26d1fa3a8 10.62MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f9e45816f5fb842312d5a879954109ec852b2bcba92b167dca12384a07f39ac5 10.86MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:53603c838f858007d1614c73d451cea142f822de562ceef91176c22b11131f93 12.43MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:914bb33607653cfe6b91de528c051d74897b42e5eb82e07ee64fb80dfac8db13 12.76MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cbb5c033b5ae99998d204a1632fa47d9e90ccc63979d18b654a5fb5c5c261145 12.93MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9a73e85253aee81f30079479e3d8c2b8b8623e19247998f2046d51579902d645 13.58MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2b8419c16b2f7eee71c5184c65d39f83332977b63a70a2c50fd0102568899224 13.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d26657e6571be791db3fe39f9eb00ba44d54769aebb8669b17bb6c28c6045852 13.71MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9ca59c0e6ab816d0c8f45bfd98af6470afef088ba456d993f78123badf34064a 13.94MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:05436276f720146dada3965e54b78c89efa0be83f5ff31147219f1f3c94d89e0 14.08MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:df7faf39b4f89661ab95650cac039d7ac60f1f50d52ce615d683343c6293d5a4 14.2MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f713b96311f81d705f6dd0f647b326b36308ee5d9403065db61b1767c563c395 14.26MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f2847cb5a2905134a2ebeab77bc3741b2d3fe72447d0fa14367f004ffabf537d 14.26MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a620ae4e8804a44488e5399ee1e9a5f1bf9099533fb6823339dcd2d6eb7ef465 14.29MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:851b4952d38af0c5ef3cc603a992737fecdefce514f6fdf4e2acf6bfe68dd49a 14.34MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af222cc0729f390934accb0dd04ea25147c9feffd5b7af7a16d0fbc197224bce 14.45MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5ac0f284d749cb39632ec10924a09cad13f6a1f1c8440a3e562997df15300afa 14.53MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:57b494da2d9ae4829984b5b47240d00c1487240ec585763bbc3fa13586db7507 14.71MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9cd1d02e1283e77b67538b16756bb49ff7c3148ba58da92f1e1bbc8087fd66ad 14.85MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6c3f3f0b514b27e3c8c83cc01a7e68db61ef5279f36791ff3a6fd554a270d640 15.06MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9378b2b3909adf6a24119ec9aaf41e806718f56afbe95919393a32d9bc6493dd 15.26MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fcb88f21649d6c943e69bf31cb74f6aa8aae15e188aba26bd9c431ed0a8365a7 15.28MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e2d987225dad2e1d2a2afee19d0715a51a5f8639478aa3652d9ef59dbee6d362 15.35MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1856dcd6a89d825400366da9dca4bab7044983c28fbe6d68508d269ed135e5ea 15.36MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a7ba7b624c5d860d1e52af4d94a85ba2727176b27c3c1eec3b0a584f0c31d9e5 15.43MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9bc11ceae8bfe5ab5316bf0a3361cb21f176496dbe8dbd5486f2f9ed25e4f84c 16.02MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1d0e4ca04eba6ae2f82bc307a69b114864145642aef1be231943ea70804278a5 16.1MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42633199ce7470025b24f2b731f5d8fca0a8114fb14a0cfa56cdadab64556b1a 17.12MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:811d6c27ac1136a02adee59c46ca536d0408621f33287f72b03364c37420bf8c 17.24MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:20e35074f005d2447e7ea2b05d8556e6ad7b9980ded85d705deb746559dbfe5b 17.4MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fe92b88eb4dbf2fbd8298567c15b338da75ec67aa3e08ecee6635f9ff59bd952 17.65MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:913d76a08d197ecfa30d0dd0e6d96949594589dbf56bd842bcec85f66d77932a 17.88MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:015bcce22446de30285b0c37d601024a9f9594b9dad1cd8e8104552e4294daa5 17.91MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:68a343c1b39f8228cc1912e3ed67a1030abb94db64e98184c503d3c5e64fc478 17.94MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:3984115d784f1725031cd2af3d27bbe40fd156f4f7bd5d6be969b4a2d44c6463 18.62MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1140c654bae4b01a62e5774b60a2657d03ba8c4e368fd5275a8b8df572bf52b0 18.83MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:af7859a67a3b09787ea1f05ceee8410a998ac11c1bf703a16dcbc9b2e06e2a03 19.08MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:59e341fbb93dd5800921a5c580d51cda59552ec4ac946f15513c17ce95ee6f32 19.35MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1c636c472017458f99da13ee955c149949edebe82ab11aa00e44118c61b64c90 19.49MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:5720e83760864f8abb993099cafca7476973e8814c2ce42e555d020017c3665a 19.62MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b06a834737b0ed3557a419084982b82fce4e6c3bf126a1a6c218b9531666676f 19.92MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0e8d972a15b3d5a75daa2f10f7858e111ad8ad37bcf71f589e293f577d0bddc6 20.74MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:25258398f6245d6b8e2f21c788a1bb78c296c6a5fbe6ce7d2ffe1c052dcb1bdd 20.87MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd30db42a776ce04dcf09a6c16e99d03da31f18d76f2ea88e05039d943dd571c 21.59MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c00e941b96fa9ac7086798d04f3652139c37b9b3c6891a6044ba89143f087600 21.71MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:aefcc61d7fa1e94b97e85048393419a3fd95052e55ee4afc5f268cec5055534d 22.29MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f06129f76a794c175b58c73937f99def84930bf9a42782454c04e76068479060 22.87MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d44720055d9d69106db9e9785b39f98d0a5efadb80452a1cfe8caf6c67549775 23.2MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2ef3bf78a85afdc8d7344c4b7cd20e824109aad3e255bfe8c9ce3fc45f5558c7 23.23MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bc4cd53cdc699e87da3bca4bb47467a2336430b2408169de82db1b363e478633 23.45MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:df2aff1eb743dfcee89b0860cc7c784906aff1b4bfbe664f1cc011dad5184e38 24.23MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7c11e5c68427dd635ef82d32a0e4837cf8c58cdc206b3af6ba7b1da3d39494c3 25.28MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cbb47aeac6ac708fa56d3d47fc3fbd84673e1646c72d580ad55c456cdd3937b0 26.59MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d0ea6883f5f1bb0ad6dddb7c76dfdaf5dfbe4f5af8ad1de0a37e2bcf00e9f227 27MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e218c1109f1b9752244d8d7c9a15857b5543f1b52781c1c11b8c1c5cba12c78c 27.05MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:082e1f26865abc19bac870f7ec71be76b614aacdfa72b0cce75d53b08988868b 27.18MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:63a345003bc6c4c8e61b0e2e8466057fdeea27cef27720c55e9e68c2b73c7ada 27.95MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:189d7f27618c0b915ede205accb3889d297c6677bfe834df8545a42eb7280b22 28.08MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:775b0956370dc882bec77f11b494283955f1195b08d2d7e3b5cce57fb38ac7e7 28.41MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e92898da413ed68ef8779e70feaa84ef0c1cd8da82a0409a6fbc282ea36c1f22 28.93MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:d0afd03b99a03906e10c919afa74d7884a442e877dc934fd34e8415186f21652 29.14MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a0e92156ec06e4dd13c15c2860925abcf59d55734f5f2c831a33e89e93fa4097 30.97MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fedfeaad6ca301f9dfd34c03c64f860fe03a77700b3140a3038647599f8f1863 32.48MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f656d2a9e76d7901413a4e17a5004668a78359454face1edf3b4a6efbc5da194 32.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4756895d2c31d7a00128d4dd2756e912dbdc4ec7027babd45716433fa318bd51 32.74MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7d1517c44cfb508202cbb38aa5e505660d31c902e91583528fa3f76fd01ff675 35.38MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:bd1b7c7f3699c2917ab2e804415e5aad9842d5c519c55aae9b647954e19adfa0 35.51MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e9061a12bde882386e5dc70d7648356fe90eed586d43da87ef5b789d6b83dabe 36.52MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b5ee74d2635b94a82200ad91b83cca70c2bdee716cc693d0ad85b4e825f128da 36.77MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:04e33c68cac6f511369c780ed4368f39e33c2fcc8f86e2534f73f6fdd94098b6 36.93MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c9adaca91941f1f48656fd4d49e52278d368c9a78ca083bd286362052c0b20b7 37.85MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:77d85d56a71b6d3fc646753133cd28efb2f2adfd1aa23cd334b275e1bbe05ef4 39.18MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:2eb23a30f46556c8d5175f5cf3a91f97cd04d2f7eafbf3cfc890faf3bd74c881 41.64MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ef7e69092cacf556656bc4f06ab9698b9f64914dee12358c293804c54345ff98 43.06MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:9af517e7f1c33ea78aa831fd63bc77c1bb3bb09dac8ae7dfd79ac1993f972e6d 44.12MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:96791d55bd561114c989a1f48e38a8fd9943f431e6b032c1f44f7513e0dfee4c 44.56MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:520cf13d756d86075a9e899cd739d1a2a71cd9a5f4eb37b2b6270b91bf23c782 46.4MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:887df62977e89df32deadfb7afc95a9bd304c4632531fd19ff08f6dd9cc88b11 60.98MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:f895238caed4adeab5c96b4c6693cef6e8e566e45858d73adfd64d2f5fd10253 70.45MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c0f83de3cefb8867de7600e97355083b3931b5284dd0e9bc752d1bb49d792c00 74.26MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:95efbc6c0025e6746c9c573fafb81c4af15895e756b1d06a8d0092ebdd7bf10f 74.96MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:17785b47ca890b77594e9abbe19385ffb7d6a29ca70287c0ed26ef88a38cb44d 75.43MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:c5875e05e28de95cbafd6484be70710725176aec2bff8e0318517554d6efa7a7 75.77MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:0132bcf79200b3efa07cafc9e5698da9b6273edc5e57a37de2026dd70b957d4b 81.65MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:4116e4c4776f15e3cf4eb8a0931760a57a5893fa0d646075f54477917fa86a06 81.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:6db56c0cc37908c6568ef787ed4da67374196884c088081014b0bf8c2c8ca4a3 86.79MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:73002063032c50c9ccb4ffe71efa1a3c08b1268e82aebecba8b4d3872cdab609 92MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:ff092b2f9936efe53cd7ee9e123ea99bddcea628b7105d0ccb58baec46921e72 94.94MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8dca89f3344197b4da86a916d9808a2bd524f1d123bea561654f86cf3dfe2802 97.16MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b207c27c7e4aae1ad386fa64fc5daa284df1ce9387f8d3e3460ecb6d63ccb2e7 103.1MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:e3573b5e5229c6e5a6fb132a48e0b25643b6688327d49874601cccce507e1848 112.8MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:b1f7b3b05b2531477c4fc867e67dc9873ea559e24c08492a546ae4a395fc889f 117.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8db1e43678df39f89af62b14412b3c40e8f38379da697ab095532fe482ebc361 119.3MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:a1f86f60842bac744a0d87bcae376196b3ab85338f1aefdac4328b4d5a96f59f 121.2MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:8afd8cd88dfdb8a23dac5237e56442348a397d6a0e96fa2a0e8db033033089e8 127.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7136f590b4655021cbbb0ca0f6c3fdf724ec0736d924aa0e6896e0daadee15d8 145MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:efd7378718a22f251f9d223b24fe5d50caf2268adf9f54f9f2ab54ad1028ebb7 145.2MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:15d9469c96d7de72aec50bd6b68e3647a2e84d5bd35a493f98628bce48df99fe 149.6MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:cd02e0b4f5db6c084e09134d79200b2d02948d0a00a27ebecd8c2057f0cb850b 190.1MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:42e9afa8b5347b58a2f962f2dee4d96e2100d41cb19a96d48f090b01c5e96830 211.7MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:1cdb19d4805403749d1612f28999b3d2dbdf1a1ed1f8f1738db74fe952c84ad1 217.1MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:7992e51adeca78510afe99327bf61750d0897242022a5021a5c445a099ee616b 430.6MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:739a5ccd995b64c361d25b372fd92375b87d81fd329d7e3d2b2e16727d1ee3b1 477.5MiB
+#  	quay.io/openshift-release-dev/ocp-v4.0-art-dev sha256:fc14f7925bff0c785f3df52232993db3c6d3b3480e63a7d7be8c3c4007073cb2 869.3MiB
+#	manifests:
+#  	sha256:011b6819853dd51f795ac875b6ab338f6d85e9b31fa4fb8b5c7b2d580d9266bf -> 4.6.17-ironic-static-ip-manager
+#  	sha256:031ae90b770b7c9c1ff50c7b743e231edb0dcd84429e36872f8ae55c4b1e2d71 -> 4.6.17-ironic
+#  	sha256:05bb57d016d99aeac7551708169dc4e0dcdee2eb6c7a4993dcdf4f0302aeae3e -> 4.6.17-cluster-autoscaler
+#  	sha256:0a2adfca1e4dfd4e1fb4cba0034815b479ee89099575f577bbc6f6665149f58a -> 4.6.17-libvirt-machine-controllers
+#  	sha256:0e47fef3cbb542606a431a5df804a7162e59c06f5fd974d2ae99373fc0b1c4e6 -> 4.6.17-cli-artifacts
+#  	sha256:0e60df057a17adb6907182acb58237e65e89d31ce4cc8d020c3be0367eab62a4 -> 4.6.17-prometheus-config-reloader
+#  	sha256:0ef0017421096229a0ebcb72f58c2ca7eecb95038f524b3b3e682d6ee1364bd4 -> 4.6.17-cluster-ingress-operator
+#  	sha256:10125089091e0b5c3e0ab17d528afca68919eb77451c10d0282da0250e729072 -> 4.6.17-jenkins-agent-nodejs
+#  	sha256:10aed22423b0585831869fc82b4b8f722a6fade481709b6dcaf8a180549fabf2 -> 4.6.17-gcp-machine-controllers
+#  	sha256:1309762c80489864d7f511a14b3dc2b334ed4cd3be5d0fe364165f2928f04fc2 -> 4.6.17-kube-rbac-proxy
+#  	sha256:1e530273358bc0e1d2ad6be861dba8e490004d0ee450c3e6eb2b853eee08a986 -> 4.6.17-csi-driver-manila
+#  	sha256:1f589fff0f5c942d0671c41c5d8767e013faf59e6f9d7bfa39f584c7978aa288 -> 4.6.17-tests
+#  	sha256:1f7def9c8e151b8aa19e04fbdd59338be758bf4f40a670c0f555c3e385ea5a81 -> 4.6.17-baremetal-installer
+#  	sha256:203f38e0c1d662bd8568ed754850b36c905803e5681d393a78f393a99814a5a2 -> 4.6.17-keepalived-ipfailover
+#  	sha256:2071dafe534e9427ea41981d64cb96547f17ad7c43141fc75c1b2b9a4c81cb25 -> 4.6.17-prometheus-node-exporter
+#  	sha256:2091029d2e3ef73a36fdbf46de1fa69b60ac869ce183b9e8da8f42ab54040d22 -> 4.6.17-aws-ebs-csi-driver
+#  	sha256:2211b098ee569e07f5fee93787d542329759454eab8ca2da2c4c4fac193a3493 -> 4.6.17-csi-external-attacher
+#  	sha256:22719a6c0cd5176264841869e447d82e2269348a389988d1ee02d004b8d7952c -> 4.6.17-csi-external-resizer
+#  	sha256:22fce9467c72c6097d858f885ffcbb48e96299390378604dc3889d87d74ab050 -> 4.6.17-cluster-update-keys
+#  	sha256:2532e34e011af076a48d771ceb71851ab10629d796f3b726bd7fda1704b853d7 -> 4.6.17-ironic-hardware-inventory-recorder
+#  	sha256:2901a101ee277d87c3d96a1ef35d42ba53ff8b0d2a47e3029dc0ad338343149e -> 4.6.17-haproxy-router
+#  	sha256:29ef86fe8fcfa00988d9a48d9f3251f371eebf3760c8f680b7f2623d6152681c -> 4.6.17-etcd
+#  	sha256:3033d8d9253ac1d6c87f58e6621732b6e91b6e8c0faefdb72ab95496472f16fc -> 4.6.17-multus-route-override-cni
+#  	sha256:363aa1dd4536eff630123a6c1df4c94061824ddf0ebc84ab4f4e5207d1ffe758 -> 4.6.17-ovirt-csi-driver
+#  	sha256:395d7bb0e9ba2f6cc1ab7178f5494981e18bab303ffe28aea31541cc1c6c9515 -> 4.6.17-machine-config-operator
+#  	sha256:39ac816c8207ee242ba05606e4e85b7d2328176a4bd518fde05cdf481a60fe52 -> 4.6.17-hyperkube
+#  	sha256:3aadb9c183a6b0ab8800188167aaf8ab71bf1d814739050e8a13e7e12312bc80 -> 4.6.17-machine-os-content
+#  	sha256:3b4b20037566fa3998df877a4cd23c1b7f15e4badf86659d126aae8a04cda42a -> 4.6.17-installer
+#  	sha256:3d313077512ef8ab1a10861f6ee7a85796acedf26cde74ef5b86f9eb4f296e60 -> 4.6.17-cli
+#  	sha256:3d99191cebe0a6235702a912052386f190194db8e18a6cf5483c21750cb32731 -> 4.6.17-prom-label-proxy
+#  	sha256:3f968cb0ca3116a7869cb41b4bfcb5ac537ff9d0ea21b3c4b69d8248881a1408 -> 4.6.17-tools
+#  	sha256:4221d96a57cf6587dd05557b510431f3daad8d86e04de93524b32386958e0907 -> 4.6.17-multus-admission-controller
+#  	sha256:444eb246ed44654f88950bdcd49e60a440701d5d605a4c630dc7d7406ffdc8e4 -> 4.6.17-baremetal-operator
+#  	sha256:45d328bad92cdad73930e0c12eb46662580b3a370c5f38c48d569d6bc32bb5a6 -> 4.6.17-local-storage-static-provisioner
+#  	sha256:4a89f2c94c9a03261eb60ce881e8d1e52843264ff63b8736d1fc91438c59b944 -> 4.6.17-oauth-proxy
+#  	sha256:4aba38ed40d8bb4cf6e6b4dc2ffa1f7ab16cde46a57162f8acbdc680a20e37af -> 4.6.17-openshift-state-metrics
+#  	sha256:4dca183c3a8b18038fe9106c7fa7a8c288b085cd69da27b551d99bc138b6542b -> 4.6.17-kuryr-cni
+#  	sha256:4f8366189531a6546adc4476d60f795a2eaa227a07ebce1ac3f970ae8969023d -> 4.6.17-configmap-reloader
+#  	sha256:5760cf2d2faefd5f314c53bd34f8d7e0036739043845ffb3cfdc81816fd0caf5 -> 4.6.17-network-metrics-daemon
+#  	sha256:5ab8d794061b891d325162e17f816ced009fc18fd5b711f580080c5bb094c909 -> 4.6.17-kuryr-controller
+#  	sha256:6001a24babee11165c20ee524c2a1053520c675d57c16fab7c46c9d1404098b7 -> 4.6.17-baremetal-runtimecfg
+#  	sha256:60d874ced7236ab9c8ecb8a1948e547c0eb528fb7f33184a57281cc57a490953 -> 4.6.17-cluster-etcd-operator
+#  	sha256:619cbfc3d832d030f868846024b1076e74ed0d98cbfbacfcd641a7150712b2d9 -> 4.6.17-aws-machine-controllers
+#  	sha256:62189e2818c7e56f05cf681cdf7ff6630329ff032c7d6a90286a5f4a55ea6a8a -> 4.6.17-cluster-version-operator
+#  	sha256:6647f7263989403889bca3e2e119e4c79a3107699a491c122d03189725ac26ef -> 4.6.17-cluster-policy-controller
+#  	sha256:6678c228295d7557ec45ab562a2979ad77dadafba23bf189237809e746ad70d5 -> 4.6.17-kube-proxy
+#  	sha256:66b54476133e113862ba143e362049056fb212a9526b850282f25048c0739b2d -> 4.6.17-oauth-apiserver
+#  	sha256:67e5f6854cb09103ad5a657cd04051fe2d28112f311469160f98acecc45440be -> 4.6.17-deployer
+#  	sha256:68df2c5fdd8c259980020bd108b3a9338af7f16d387e4a8852bee35213731992 -> 4.6.17-jenkins-agent-base
+#  	sha256:6d7f15a3f8fdb9f6b417ce33dc04a80c8917ae41c4623e791719bea81a794571 -> 4.6.17-oauth-server
+#  	sha256:7080dde1e5b83001e95f77dafda7250f79a4a41dd733ac45219cff0338e6bc92 -> 4.6.17-operator-lifecycle-manager
+#  	sha256:70ce4ea6ac187161effda1929b579697839d8953c1a21703b650afba1e401d9f -> 4.6.17-console-operator
+#  	sha256:72ca9175ff550fcfa45d2dbed57db783eb547e5e03308edd8aea84693535c290 -> 4.6.17-csi-node-driver-registrar
+#  	sha256:7450e4a112aabfa72b58c1733900a0ff9cfb4004601228ad8d5799284bb8b754 -> 4.6.17-cluster-kube-apiserver-operator
+#  	sha256:750b0fe06d9c10616d0b384234d78accccde2d89a82f3daa7453cfaf4da735bf -> 4.6.17-kube-state-metrics
+#  	sha256:76df6164759a4f1aeb76e31a1c2bad5bdcf77c656621d5fb98c47ec703b11f71 -> 4.6.17-thanos
+#  	sha256:771b1a83691fd9dd01caa1a43a7b5a743930171e33916214f9248f82045895bb -> 4.6.17-cluster-samples-operator
+#  	sha256:78e5f2985df85a452781fe8e6ceb0138a0d14eec698bb4a84a1bbd577cfd171f -> 4.6.17-multus-cni
+#  	sha256:7c7ef10a8ea09844dcb9fc1c787c19f779bd8a817bec43785f1996fac1552393 -> 4.6.17-csi-driver-nfs
+#  	sha256:803af811cfc9600c4f821742539840ece53a34156ea96328a5b26dafc530648f -> 4.6.17-cluster-network-operator
+#  	sha256:8225d096757c2402f9f63e051d0343a3d8ceef3b4527c4684fc25d2644eb4b43 -> 4.6.17-cluster-authentication-operator
+#  	sha256:838f0a15bb1b490a9753bc582c04c6a81af7f71199eb4bbfa319d14737b171aa -> 4.6.17-cluster-dns-operator
+#  	sha256:83d25c0fd2a6de1a6905aef20ac359353b0624c6ab38aa91c914ad74edcc71cc -> 4.6.17-aws-ebs-csi-driver-operator
+#  	sha256:841457ba229b93277d05a9b4b43b75ba1e22dd04eca510691872afc0406b336a -> 4.6.17-cluster-bootstrap
+#  	sha256:84de76f6f93d79749eac44af1a102568cee3e6a99757d134872d2663045e27f3 -> 4.6.17-operator-marketplace
+#  	sha256:89e380ec8b9104f6a0f23f297a03b6edae48d107ea9c86fe48006bb2904db50e -> 4.6.17-openshift-controller-manager
+#  	sha256:8c752b3a74b36bd0ca8410a312872f655854f59174a85dc2acf50d87e39149ea -> 4.6.17-installer-artifacts
+#  	sha256:8dadda63fd308f671c39cc3837fe1630d1dafe913ac95e9ee9fe3a33c0aaf69c -> 4.6.17-prometheus
+#  	sha256:8eab68b8c4c2a3d35ea620de54e012ab5038c108efc3135c43faa09f71f64bca -> 4.6.17-cluster-kube-scheduler-operator
+#  	sha256:940bf3e768e33781933f0b1fb0b04ffd3744f1c7ada77a89c8bf918661d9c97f -> 4.6.17-baremetal-machine-controllers
+#  	sha256:97a606263ae3ffad8582b5b20cafb01b0474706c972cc282dc0198aa348f4ec7 -> 4.6.17-cluster-storage-operator
+#  	sha256:99e33e16d37359b46a5e89f5e8e569dcb2c59e88c989e2032607463045a1af4d -> 4.6.17-ovirt-csi-driver-operator
+#  	sha256:9aa3725668126a3b00f9c7a9e635c45d86445ed63c1a524a243ab1e9e08f2708 -> 4.6.17-pod
+#  	sha256:9ddcbf025b82d2733aebc17294ea2ccd40b11081fec7c9c892dd682fe5c9db30 -> 4.6.17-cluster-node-tuning-operator
+#  	sha256:a35b6210c49f4631b3b6e6b2ffea01bb41813ca1bff9fcf7510d7739262446ed -> 4.6.17-cluster-csi-snapshot-controller-operator
+#  	sha256:a40a5a44dd718263b52dbc2939c7b670ed8334e07a2e03fb0f1cb0518767a654 -> 4.6.17-ovirt-machine-controllers
+#  	sha256:a4aa719f8df89a05560f0b9ca9b858b5b8afe02bb1136b27597c79bfecc4a34e -> 4.6.17-prometheus-operator
+#  	sha256:a568267d69e956df71909022276a800a7d12ce84169b3dad10febacff6a87009 -> 4.6.17-k8s-prometheus-adapter
+#  	sha256:a7b23f38d1e5be975a6b516739689673011bdfa59a7158dc6ca36cefae169c18 -> 4.6.17-x86_64
+#  	sha256:ac11b91bdc87703c9bf2edf31aa692b0c4046e25303ed565fba420cbfd395c47 -> 4.6.17-csi-external-provisioner
+#  	sha256:ac98c5081cb390c80aad1a4065cbb365fc51e87ddda96a763f0a8b3d0d060d89 -> 4.6.17-docker-builder
+#  	sha256:ace37dd6ef282baf85980773af1c9225e24a00d421a64047171d2c3051f1eb49 -> 4.6.17-grafana
+#  	sha256:ad205e2b61581abdd83ecc2e41f278b06da92d91fb733b0f00c6e3aaf094ae1b -> 4.6.17-ironic-inspector
+#  	sha256:ae0cac2fbd89a8a9d51c68ec5c7daa747727df781852ce90d72f21ea819d3ae7 -> 4.6.17-cluster-machine-approver
+#  	sha256:b0a64d7beba03650bee37447138e0dd4c7127e98d04c742232806bbf711d8553 -> 4.6.17-coredns
+#  	sha256:b6ce0685f1cdeaa5b851f1e94cb91b9155d30aced3db3b32076daf350ee9770f -> 4.6.17-openshift-apiserver
+#  	sha256:b6dc9d93e8316a4e86780f4c50839e2179e044cec6535194a3752d3d901943a8 -> 4.6.17-must-gather
+#  	sha256:b9901d5a9ffe7019ecd8c4962d619cb38e471d1a7623e747f7099962263eace8 -> 4.6.17-csi-livenessprobe
+#  	sha256:b9f664a3df1adaa00f5ddc1634501ef3b977663ddbace7a127d8232536800aae -> 4.6.17-jenkins
+#  	sha256:bb27f81bf5e3608a0aa2d93888edea97aa195ee6cff27b96a062e9bf2189a783 -> 4.6.17-aws-pod-identity-webhook
+#  	sha256:bc80c2817f6923fc4459508c0bf754809e89cfea5321ef143fedf5ec5b084a1f -> 4.6.17-service-ca-operator
+#  	sha256:bcc1fb20f06f00829727cb46ff21e22103fd4c737fdcbbf2fab13121f31ebcbd -> 4.6.17-sdn
+#  	sha256:c43bd03cbac5b49f5c84402ce29374a8cde3f00e423c5662af27ccf6466e884f -> 4.6.17-mdns-publisher
+#  	sha256:c447c7e2fb5b3426ce368a116c3223fee59e35a8c6a4c1d20cf521498d5b676a -> 4.6.17-csi-driver-manila-operator
+#  	sha256:c4d475ee03eb1d406044cf87fbfceb79aa8154f49a89ea202c183ed7247b87b6 -> 4.6.17-cluster-image-registry-operator
+#  	sha256:c5a0bcd124948499f12561693b71ab82a80587238ff0ef987ab6a482c6c7168d -> 4.6.17-csi-snapshot-controller
+#  	sha256:c6d1c461ad984eacdfe67159358a8e6a4f84d94ad69bea6963ad8b20319c090b -> 4.6.17-machine-api-operator
+#  	sha256:c82c63c6a484aae36cf1c383fe3684134f3f1f6928a3bcbbc45cd77588aa00ea -> 4.6.17-ironic-machine-os-downloader
+#  	sha256:c9fafc6ec5421b0c253bb3856ffa66deb9f39dd214bb3a57e5945abd7fec984d -> 4.6.17-ovn-kubernetes
+#  	sha256:cef5b97f737160f5bd5b9b88587ef0ee80fb01950ff544ea9e93b0d1857b2c45 -> 4.6.17-cloud-credential-operator
+#  	sha256:d0de30a7f8b8c8c8df0180c4fc113a8710f87877976f5222ee76488f27eee6ea -> 4.6.17-telemeter
+#  	sha256:d2b32754ab4de8faa65913e38e699fd4d4d0011fe13cf673fc2386e7d84e8967 -> 4.6.17-azure-machine-controllers
+#  	sha256:d51ce39c4107caef2b8da828d5d0c4615fd704497f6e7f3f99b399f1af696fa4 -> 4.6.17-cluster-monitoring-operator
+#  	sha256:d5219766f5f60faefa8bae908f549a78183899c9be81a9586bd868c49fcc6e35 -> 4.6.17-cluster-openshift-apiserver-operator
+#  	sha256:d5c5d85e69fe04d65c422c94a53b25a9a44fd7e583e8539aa12653378b495a32 -> 4.6.17-kube-storage-version-migrator
+#  	sha256:d73a1c0fbd5494b27146cf2d0617bd678579cc8caf30f2a189ce1763106f3f42 -> 4.6.17-cluster-kube-controller-manager-operator
+#  	sha256:d90e82a20168bcae12ccc9fd0d26b885dbe24c98e5e3489530505b293dabd31c -> 4.6.17-multus-whereabouts-ipam-cni
+#  	sha256:dd086ff5a1699dee85b3259943c9911590fb35135862379ae23a43ae45766026 -> 4.6.17-operator-registry
+#  	sha256:ddf7315a5f6d80d5787f4abaeb03513b73dbe177a5ee1da31d7e43bc5cbc4379 -> 4.6.17-insights-operator
+#  	sha256:e089b9443226e55bd013c54096d4e1eb7e99b4c8dc8da75c92a4c7227ac56484 -> 4.6.17-docker-registry
+#  	sha256:e6d91424d0ed5709033b41ccf694429b4726e458321db17dac229d1201f65707 -> 4.6.17-container-networking-plugins
+#  	sha256:e7cf5326debad3c3a014ede288653df66fd9c40cb65eb3df83893f4a3819ed00 -> 4.6.17-prometheus-alertmanager
+#  	sha256:e8f1b6b04e268c04cdd4adafacce43372703f6b8b35184168f7d897933f59f1b -> 4.6.17-cluster-autoscaler-operator
+#  	sha256:e9e9cbfeb3fafcd6e59a970286358d1a074ef75727a34328a19114f6b3a9982a -> 4.6.17-ironic-ipa-downloader
+#  	sha256:ea4fe93f569d14226615ce393add33f4804c83d2b96e9dfd132c9c2fa6b2ae35 -> 4.6.17-jenkins-agent-maven
+#  	sha256:ea7c39405eb97a27f44574f6b3a3157f1b5161773bf5e96f8bbd7e8a1f3af2cd -> 4.6.17-cluster-kube-storage-version-migrator-operator
+#  	sha256:eef6b463eed162f50b42ef5b5aca1fad905e4c7f2fd5b61dd6ede3e73ef5442a -> 4.6.17-console
+#  	sha256:f1f94bcea9a7ae20cba9cf0feabfde7f244f0ab97dfd7c2b0972864664db5fde -> 4.6.17-csi-external-snapshotter
+#  	sha256:f20d7988c16a9bf4e0ddb647b30ef0e161fe7c7847838f1de01eacb363478de4 -> 4.6.17-cluster-openshift-controller-manager-operator
+#  	sha256:f41c0685f12d9a44b185d7f78685a677d9910321b4ded3b6f6d63640b1344f72 -> 4.6.17-cluster-config-operator
+#  	sha256:f8283a95e6af1fb139189331526e0f194d994757963a68ade2d1731a19e1d69d -> 4.6.17-openstack-machine-controllers
+##  stats: shared=5 unique=244 size=6.223GiB ratio=0.98
 
-apiVersion: operator.openshift.io/v1alpha1
-kind: ImageContentSourcePolicy
-metadata:
-  name: example
-spec:
-  repositoryDigestMirrors:
-  - mirrors:
-	- 192.168.68.80:8080/ocp4/openshift4
-	source: quay.io/openshift-release-dev/ocp-release
-  - mirrors:
-	- 192.168.68.80:8080/ocp4/openshift4
-	source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+#phase 0:
+#  192.168.68.80:8080 ocp4/openshift4 blobs=249 mounts=0 manifests=121 shared=5
+#
+#info: Planning completed in 23.65s
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:fc14f7925bff0c785f3df52232993db3c6d3b3480e63a7d7be8c3c4007073cb2 869.3MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:c9adaca91941f1f48656fd4d49e52278d368c9a78ca083bd286362052c0b20b7 37.85MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:15d9469c96d7de72aec50bd6b68e3647a2e84d5bd35a493f98628bce48df99fe 149.6MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:9378b2b3909adf6a24119ec9aaf41e806718f56afbe95919393a32d9bc6493dd 15.26MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:95efbc6c0025e6746c9c573fafb81c4af15895e756b1d06a8d0092ebdd7bf10f 74.96MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:913d76a08d197ecfa30d0dd0e6d96949594589dbf56bd842bcec85f66d77932a 17.88MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:b207c27c7e4aae1ad386fa64fc5daa284df1ce9387f8d3e3460ecb6d63ccb2e7 103.1MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:8db1e43678df39f89af62b14412b3c40e8f38379da697ab095532fe482ebc361 119.3MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:d0afd03b99a03906e10c919afa74d7884a442e877dc934fd34e8415186f21652 29.14MiB
+#uploading: 192.168.68.80:8080/ocp4/openshift4 sha256:53603c838f858007d1614c73d451cea142f822de562ceef91176c22b11131f93 12.43MiB
+##sha256:e7cf5326debad3c3a014ede288653df66fd9c40cb65eb3df83893f4a3819ed00 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-alertmanager
+#sha256:f41c0685f12d9a44b185d7f78685a677d9910321b4ded3b6f6d63640b1344f72 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-config-operator
+#sha256:a35b6210c49f4631b3b6e6b2ffea01bb41813ca1bff9fcf7510d7739262446ed 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-csi-snapshot-controller-operator
+#sha256:7080dde1e5b83001e95f77dafda7250f79a4a41dd733ac45219cff0338e6bc92 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-lifecycle-manager
+#sha256:39ac816c8207ee242ba05606e4e85b7d2328176a4bd518fde05cdf481a60fe52 192.168.68.80:8080/ocp4/openshift4:4.6.17-hyperkube
+#sha256:011b6819853dd51f795ac875b6ab338f6d85e9b31fa4fb8b5c7b2d580d9266bf 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-static-ip-manager
+#sha256:83d25c0fd2a6de1a6905aef20ac359353b0624c6ab38aa91c914ad74edcc71cc 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-ebs-csi-driver-operator
+#sha256:0e47fef3cbb542606a431a5df804a7162e59c06f5fd974d2ae99373fc0b1c4e6 192.168.68.80:8080/ocp4/openshift4:4.6.17-cli-artifacts
+#sha256:d90e82a20168bcae12ccc9fd0d26b885dbe24c98e5e3489530505b293dabd31c 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-whereabouts-ipam-cni
+#sha256:1e530273358bc0e1d2ad6be861dba8e490004d0ee450c3e6eb2b853eee08a986 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-manila
+#sha256:60d874ced7236ab9c8ecb8a1948e547c0eb528fb7f33184a57281cc57a490953 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-etcd-operator
+#sha256:10aed22423b0585831869fc82b4b8f722a6fade481709b6dcaf8a180549fabf2 192.168.68.80:8080/ocp4/openshift4:4.6.17-gcp-machine-controllers
+#sha256:e089b9443226e55bd013c54096d4e1eb7e99b4c8dc8da75c92a4c7227ac56484 192.168.68.80:8080/ocp4/openshift4:4.6.17-docker-registry
+#sha256:8c752b3a74b36bd0ca8410a312872f655854f59174a85dc2acf50d87e39149ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-installer-artifacts
+#sha256:84de76f6f93d79749eac44af1a102568cee3e6a99757d134872d2663045e27f3 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-marketplace
+#sha256:22fce9467c72c6097d858f885ffcbb48e96299390378604dc3889d87d74ab050 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-update-keys
+#sha256:bcc1fb20f06f00829727cb46ff21e22103fd4c737fdcbbf2fab13121f31ebcbd 192.168.68.80:8080/ocp4/openshift4:4.6.17-sdn
+#sha256:9aa3725668126a3b00f9c7a9e635c45d86445ed63c1a524a243ab1e9e08f2708 192.168.68.80:8080/ocp4/openshift4:4.6.17-pod
+#sha256:3aadb9c183a6b0ab8800188167aaf8ab71bf1d814739050e8a13e7e12312bc80 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-os-content
+#sha256:9ddcbf025b82d2733aebc17294ea2ccd40b11081fec7c9c892dd682fe5c9db30 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-node-tuning-operator
+#sha256:1309762c80489864d7f511a14b3dc2b334ed4cd3be5d0fe364165f2928f04fc2 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-rbac-proxy
+#sha256:2091029d2e3ef73a36fdbf46de1fa69b60ac869ce183b9e8da8f42ab54040d22 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-ebs-csi-driver
+#sha256:68df2c5fdd8c259980020bd108b3a9338af7f16d387e4a8852bee35213731992 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-base
+#sha256:4a89f2c94c9a03261eb60ce881e8d1e52843264ff63b8736d1fc91438c59b944 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-proxy
+#sha256:940bf3e768e33781933f0b1fb0b04ffd3744f1c7ada77a89c8bf918661d9c97f 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-machine-controllers
+#sha256:4aba38ed40d8bb4cf6e6b4dc2ffa1f7ab16cde46a57162f8acbdc680a20e37af 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-state-metrics
+#sha256:0a2adfca1e4dfd4e1fb4cba0034815b479ee89099575f577bbc6f6665149f58a 192.168.68.80:8080/ocp4/openshift4:4.6.17-libvirt-machine-controllers
+#sha256:99e33e16d37359b46a5e89f5e8e569dcb2c59e88c989e2032607463045a1af4d 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-csi-driver-operator
+#sha256:395d7bb0e9ba2f6cc1ab7178f5494981e18bab303ffe28aea31541cc1c6c9515 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-config-operator
+#sha256:45d328bad92cdad73930e0c12eb46662580b3a370c5f38c48d569d6bc32bb5a6 192.168.68.80:8080/ocp4/openshift4:4.6.17-local-storage-static-provisioner
+#sha256:e6d91424d0ed5709033b41ccf694429b4726e458321db17dac229d1201f65707 192.168.68.80:8080/ocp4/openshift4:4.6.17-container-networking-plugins
+#sha256:6001a24babee11165c20ee524c2a1053520c675d57c16fab7c46c9d1404098b7 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-runtimecfg
+#sha256:838f0a15bb1b490a9753bc582c04c6a81af7f71199eb4bbfa319d14737b171aa 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-dns-operator
+#sha256:619cbfc3d832d030f868846024b1076e74ed0d98cbfbacfcd641a7150712b2d9 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-machine-controllers
+#sha256:e9e9cbfeb3fafcd6e59a970286358d1a074ef75727a34328a19114f6b3a9982a 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-ipa-downloader
+#sha256:2071dafe534e9427ea41981d64cb96547f17ad7c43141fc75c1b2b9a4c81cb25 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-node-exporter
+#sha256:1f589fff0f5c942d0671c41c5d8767e013faf59e6f9d7bfa39f584c7978aa288 192.168.68.80:8080/ocp4/openshift4:4.6.17-tests
+#sha256:4f8366189531a6546adc4476d60f795a2eaa227a07ebce1ac3f970ae8969023d 192.168.68.80:8080/ocp4/openshift4:4.6.17-configmap-reloader
+#sha256:cef5b97f737160f5bd5b9b88587ef0ee80fb01950ff544ea9e93b0d1857b2c45 192.168.68.80:8080/ocp4/openshift4:4.6.17-cloud-credential-operator
+#sha256:4dca183c3a8b18038fe9106c7fa7a8c288b085cd69da27b551d99bc138b6542b 192.168.68.80:8080/ocp4/openshift4:4.6.17-kuryr-cni
+#sha256:5760cf2d2faefd5f314c53bd34f8d7e0036739043845ffb3cfdc81816fd0caf5 192.168.68.80:8080/ocp4/openshift4:4.6.17-network-metrics-daemon
+#sha256:d5c5d85e69fe04d65c422c94a53b25a9a44fd7e583e8539aa12653378b495a32 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-storage-version-migrator
+#sha256:72ca9175ff550fcfa45d2dbed57db783eb547e5e03308edd8aea84693535c290 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-node-driver-registrar
+#sha256:76df6164759a4f1aeb76e31a1c2bad5bdcf77c656621d5fb98c47ec703b11f71 192.168.68.80:8080/ocp4/openshift4:4.6.17-thanos
+#sha256:22719a6c0cd5176264841869e447d82e2269348a389988d1ee02d004b8d7952c 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-resizer
+#sha256:a40a5a44dd718263b52dbc2939c7b670ed8334e07a2e03fb0f1cb0518767a654 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-machine-controllers
+#sha256:ad205e2b61581abdd83ecc2e41f278b06da92d91fb733b0f00c6e3aaf094ae1b 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-inspector
+#sha256:b0a64d7beba03650bee37447138e0dd4c7127e98d04c742232806bbf711d8553 192.168.68.80:8080/ocp4/openshift4:4.6.17-coredns
+#sha256:5ab8d794061b891d325162e17f816ced009fc18fd5b711f580080c5bb094c909 192.168.68.80:8080/ocp4/openshift4:4.6.17-kuryr-controller
+#sha256:ddf7315a5f6d80d5787f4abaeb03513b73dbe177a5ee1da31d7e43bc5cbc4379 192.168.68.80:8080/ocp4/openshift4:4.6.17-insights-operator
+#sha256:89e380ec8b9104f6a0f23f297a03b6edae48d107ea9c86fe48006bb2904db50e 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-controller-manager
+#sha256:d0de30a7f8b8c8c8df0180c4fc113a8710f87877976f5222ee76488f27eee6ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-telemeter
+#sha256:8225d096757c2402f9f63e051d0343a3d8ceef3b4527c4684fc25d2644eb4b43 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-authentication-operator
+#sha256:a7b23f38d1e5be975a6b516739689673011bdfa59a7158dc6ca36cefae169c18 192.168.68.80:8080/ocp4/openshift4:4.6.17-x86_64
+#sha256:29ef86fe8fcfa00988d9a48d9f3251f371eebf3760c8f680b7f2623d6152681c 192.168.68.80:8080/ocp4/openshift4:4.6.17-etcd
+#sha256:6678c228295d7557ec45ab562a2979ad77dadafba23bf189237809e746ad70d5 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-proxy
+#sha256:bb27f81bf5e3608a0aa2d93888edea97aa195ee6cff27b96a062e9bf2189a783 192.168.68.80:8080/ocp4/openshift4:4.6.17-aws-pod-identity-webhook
+#sha256:1f7def9c8e151b8aa19e04fbdd59338be758bf4f40a670c0f555c3e385ea5a81 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-installer
+#sha256:803af811cfc9600c4f821742539840ece53a34156ea96328a5b26dafc530648f 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-network-operator
+#sha256:6647f7263989403889bca3e2e119e4c79a3107699a491c122d03189725ac26ef 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-policy-controller
+#sha256:d73a1c0fbd5494b27146cf2d0617bd678579cc8caf30f2a189ce1763106f3f42 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-controller-manager-operator
+#sha256:eef6b463eed162f50b42ef5b5aca1fad905e4c7f2fd5b61dd6ede3e73ef5442a 192.168.68.80:8080/ocp4/openshift4:4.6.17-console
+#sha256:ace37dd6ef282baf85980773af1c9225e24a00d421a64047171d2c3051f1eb49 192.168.68.80:8080/ocp4/openshift4:4.6.17-grafana
+#sha256:8dadda63fd308f671c39cc3837fe1630d1dafe913ac95e9ee9fe3a33c0aaf69c 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus
+#sha256:f1f94bcea9a7ae20cba9cf0feabfde7f244f0ab97dfd7c2b0972864664db5fde 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-snapshotter
+#sha256:b9901d5a9ffe7019ecd8c4962d619cb38e471d1a7623e747f7099962263eace8 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-livenessprobe
+#sha256:bc80c2817f6923fc4459508c0bf754809e89cfea5321ef143fedf5ec5b084a1f 192.168.68.80:8080/ocp4/openshift4:4.6.17-service-ca-operator
+#sha256:c9fafc6ec5421b0c253bb3856ffa66deb9f39dd214bb3a57e5945abd7fec984d 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovn-kubernetes
+#sha256:78e5f2985df85a452781fe8e6ceb0138a0d14eec698bb4a84a1bbd577cfd171f 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-cni
+#sha256:841457ba229b93277d05a9b4b43b75ba1e22dd04eca510691872afc0406b336a 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-bootstrap
+#sha256:4221d96a57cf6587dd05557b510431f3daad8d86e04de93524b32386958e0907 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-admission-controller
+#sha256:0e60df057a17adb6907182acb58237e65e89d31ce4cc8d020c3be0367eab62a4 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-config-reloader
+#sha256:70ce4ea6ac187161effda1929b579697839d8953c1a21703b650afba1e401d9f 192.168.68.80:8080/ocp4/openshift4:4.6.17-console-operator
+#sha256:d51ce39c4107caef2b8da828d5d0c4615fd704497f6e7f3f99b399f1af696fa4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-monitoring-operator
+#sha256:3b4b20037566fa3998df877a4cd23c1b7f15e4badf86659d126aae8a04cda42a 192.168.68.80:8080/ocp4/openshift4:4.6.17-installer
+#sha256:3d313077512ef8ab1a10861f6ee7a85796acedf26cde74ef5b86f9eb4f296e60 192.168.68.80:8080/ocp4/openshift4:4.6.17-cli
+#sha256:3f968cb0ca3116a7869cb41b4bfcb5ac537ff9d0ea21b3c4b69d8248881a1408 192.168.68.80:8080/ocp4/openshift4:4.6.17-tools
+#sha256:c82c63c6a484aae36cf1c383fe3684134f3f1f6928a3bcbbc45cd77588aa00ea 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-machine-os-downloader
+#sha256:363aa1dd4536eff630123a6c1df4c94061824ddf0ebc84ab4f4e5207d1ffe758 192.168.68.80:8080/ocp4/openshift4:4.6.17-ovirt-csi-driver
+#sha256:ea4fe93f569d14226615ce393add33f4804c83d2b96e9dfd132c9c2fa6b2ae35 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-maven
+#sha256:62189e2818c7e56f05cf681cdf7ff6630329ff032c7d6a90286a5f4a55ea6a8a 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-version-operator
+#sha256:8eab68b8c4c2a3d35ea620de54e012ab5038c108efc3135c43faa09f71f64bca 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-scheduler-operator
+#sha256:ae0cac2fbd89a8a9d51c68ec5c7daa747727df781852ce90d72f21ea819d3ae7 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-machine-approver
+#sha256:c5a0bcd124948499f12561693b71ab82a80587238ff0ef987ab6a482c6c7168d 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-snapshot-controller
+#sha256:b6ce0685f1cdeaa5b851f1e94cb91b9155d30aced3db3b32076daf350ee9770f 192.168.68.80:8080/ocp4/openshift4:4.6.17-openshift-apiserver
+#sha256:b6dc9d93e8316a4e86780f4c50839e2179e044cec6535194a3752d3d901943a8 192.168.68.80:8080/ocp4/openshift4:4.6.17-must-gather
+#sha256:b9f664a3df1adaa00f5ddc1634501ef3b977663ddbace7a127d8232536800aae 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins
+#sha256:031ae90b770b7c9c1ff50c7b743e231edb0dcd84429e36872f8ae55c4b1e2d71 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic
+#sha256:771b1a83691fd9dd01caa1a43a7b5a743930171e33916214f9248f82045895bb 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-samples-operator
+#sha256:3d99191cebe0a6235702a912052386f190194db8e18a6cf5483c21750cb32731 192.168.68.80:8080/ocp4/openshift4:4.6.17-prom-label-proxy
+#sha256:d5219766f5f60faefa8bae908f549a78183899c9be81a9586bd868c49fcc6e35 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-openshift-apiserver-operator
+#sha256:f8283a95e6af1fb139189331526e0f194d994757963a68ade2d1731a19e1d69d 192.168.68.80:8080/ocp4/openshift4:4.6.17-openstack-machine-controllers
+#sha256:ac11b91bdc87703c9bf2edf31aa692b0c4046e25303ed565fba420cbfd395c47 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-provisioner
+#sha256:e8f1b6b04e268c04cdd4adafacce43372703f6b8b35184168f7d897933f59f1b 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-autoscaler-operator
+#sha256:05bb57d016d99aeac7551708169dc4e0dcdee2eb6c7a4993dcdf4f0302aeae3e 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-autoscaler
+#sha256:2211b098ee569e07f5fee93787d542329759454eab8ca2da2c4c4fac193a3493 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-external-attacher
+#sha256:dd086ff5a1699dee85b3259943c9911590fb35135862379ae23a43ae45766026 192.168.68.80:8080/ocp4/openshift4:4.6.17-operator-registry
+#sha256:a4aa719f8df89a05560f0b9ca9b858b5b8afe02bb1136b27597c79bfecc4a34e 192.168.68.80:8080/ocp4/openshift4:4.6.17-prometheus-operator
+#sha256:c6d1c461ad984eacdfe67159358a8e6a4f84d94ad69bea6963ad8b20319c090b 192.168.68.80:8080/ocp4/openshift4:4.6.17-machine-api-operator
+#sha256:c43bd03cbac5b49f5c84402ce29374a8cde3f00e423c5662af27ccf6466e884f 192.168.68.80:8080/ocp4/openshift4:4.6.17-mdns-publisher
+#sha256:7c7ef10a8ea09844dcb9fc1c787c19f779bd8a817bec43785f1996fac1552393 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-nfs
+#sha256:0ef0017421096229a0ebcb72f58c2ca7eecb95038f524b3b3e682d6ee1364bd4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-ingress-operator
+#sha256:2901a101ee277d87c3d96a1ef35d42ba53ff8b0d2a47e3029dc0ad338343149e 192.168.68.80:8080/ocp4/openshift4:4.6.17-haproxy-router
+#sha256:f20d7988c16a9bf4e0ddb647b30ef0e161fe7c7847838f1de01eacb363478de4 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-openshift-controller-manager-operator
+#sha256:444eb246ed44654f88950bdcd49e60a440701d5d605a4c630dc7d7406ffdc8e4 192.168.68.80:8080/ocp4/openshift4:4.6.17-baremetal-operator
+#sha256:66b54476133e113862ba143e362049056fb212a9526b850282f25048c0739b2d 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-apiserver
+#sha256:97a606263ae3ffad8582b5b20cafb01b0474706c972cc282dc0198aa348f4ec7 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-storage-operator
+#sha256:3033d8d9253ac1d6c87f58e6621732b6e91b6e8c0faefdb72ab95496472f16fc 192.168.68.80:8080/ocp4/openshift4:4.6.17-multus-route-override-cni
+#sha256:67e5f6854cb09103ad5a657cd04051fe2d28112f311469160f98acecc45440be 192.168.68.80:8080/ocp4/openshift4:4.6.17-deployer
+#sha256:c4d475ee03eb1d406044cf87fbfceb79aa8154f49a89ea202c183ed7247b87b6 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-image-registry-operator
+#sha256:d2b32754ab4de8faa65913e38e699fd4d4d0011fe13cf673fc2386e7d84e8967 192.168.68.80:8080/ocp4/openshift4:4.6.17-azure-machine-controllers
+#sha256:750b0fe06d9c10616d0b384234d78accccde2d89a82f3daa7453cfaf4da735bf 192.168.68.80:8080/ocp4/openshift4:4.6.17-kube-state-metrics
+#sha256:ea7c39405eb97a27f44574f6b3a3157f1b5161773bf5e96f8bbd7e8a1f3af2cd 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-storage-version-migrator-operator
+#sha256:c447c7e2fb5b3426ce368a116c3223fee59e35a8c6a4c1d20cf521498d5b676a 192.168.68.80:8080/ocp4/openshift4:4.6.17-csi-driver-manila-operator
+#sha256:2532e34e011af076a48d771ceb71851ab10629d796f3b726bd7fda1704b853d7 192.168.68.80:8080/ocp4/openshift4:4.6.17-ironic-hardware-inventory-recorder
+#sha256:203f38e0c1d662bd8568ed754850b36c905803e5681d393a78f393a99814a5a2 192.168.68.80:8080/ocp4/openshift4:4.6.17-keepalived-ipfailover
+#sha256:6d7f15a3f8fdb9f6b417ce33dc04a80c8917ae41c4623e791719bea81a794571 192.168.68.80:8080/ocp4/openshift4:4.6.17-oauth-server
+#sha256:ac98c5081cb390c80aad1a4065cbb365fc51e87ddda96a763f0a8b3d0d060d89 192.168.68.80:8080/ocp4/openshift4:4.6.17-docker-builder
+#sha256:10125089091e0b5c3e0ab17d528afca68919eb77451c10d0282da0250e729072 192.168.68.80:8080/ocp4/openshift4:4.6.17-jenkins-agent-nodejs
+#sha256:a568267d69e956df71909022276a800a7d12ce84169b3dad10febacff6a87009 192.168.68.80:8080/ocp4/openshift4:4.6.17-k8s-prometheus-adapter
+#sha256:7450e4a112aabfa72b58c1733900a0ff9cfb4004601228ad8d5799284bb8b754 192.168.68.80:8080/ocp4/openshift4:4.6.17-cluster-kube-apiserver-operator
+#info: Mirroring completed in 1m49s (13.75MB/s)
+#
+#Success
+#Update image:  192.168.68.80:8080/ocp4/openshift4:4.6.17-x86_64
+#Mirror prefix: 192.168.68.80:8080/ocp4/openshift4
+#
+#To use the new mirrored repository to install, add the following section to the install-config.yaml:
+#
+#imageContentSources:
+#- mirrors:
+#  - 192.168.68.80:8080/ocp4/openshift4
+#  source: quay.io/openshift-release-dev/ocp-release
+#- mirrors:
+#  - 192.168.68.80:8080/ocp4/openshift4
+#  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
+
+#
+#To use the new mirrored repository for upgrades, use the following to create an ImageContentSourcePolicy:
+
+#apiVersion: operator.openshift.io/v1alpha1
+##kind: ImageContentSourcePolicy
+##metadata:
+#  name: example
+#spec:
+#  repositoryDigestMirrors:
+#  - mirrors:
+#	- 192.168.68.80:8080/ocp4/openshift4
+#	source: quay.io/openshift-release-dev/ocp-release
+#  - mirrors:
+#	- 192.168.68.80:8080/ocp4/openshift4
+#	source: quay.io/openshift-release-dev/ocp-v4.0-art-dev
 
 
 
