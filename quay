@@ -45,7 +45,7 @@ tar xvf quay-config.tar.gz
 cd $QUAY
 mkdir $QUAY/storage
 setfacl -m u:1001:-wx $QUAY/storage
-sudo podman run -d --rm -p 8080:8080 	--name=quay	-v $QUAY/config:/conf/stack:Z	-v $QUAY/storage:/datastorage:Z	registry.redhat.io/quay/quay-rhel8:v3.4.3
+sudo podman run -d -p 8080:8080 	--name=quay	-v $QUAY/config:/conf/stack:Z	-v $QUAY/storage:/datastorage:Z	registry.redhat.io/quay/quay-rhel8:v3.4.3
 
 sudo chown -R root:sysadmin $REDROOT
 
