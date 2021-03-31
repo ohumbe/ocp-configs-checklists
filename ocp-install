@@ -1,0 +1,42 @@
+#!/bin/bash -x
+#
+EMAIL=mallmen@redhat.com
+
+# Set to which release is being synced
+OCP_RELEASE=4.7.3
+
+# set to the hostname of their quay server
+LOCAL_REGISTRY='quay.local.lab:8443'
+
+# this is 'org/repository', it needs to exist in quay already
+LOCAL_REPOSITORY='ocp4/openshift4'
+
+# These 3 should always be the same
+PRODUCT_REPO='openshift-release-dev'
+RELEASE_NAME='ocp-release'
+ARCHITECTURE='x86_64'
+
+# Copied/downloaded from cloud.redhat.com
+LOCAL_SECRET_TXT=pull-secret.txt
+
+# Destination secret
+LOCAL_SECRET_JSON='pull-secret.json'
+
+# Create the encrypted login details
+REGISTRY_CREDS=$(echo -n 'ocp4+robotsync:QVCAN8HXMCGP3VYZJYGVCUKA5OACXT9UZQWXBF42XA0S0GYOUR3DZCFTPWQV8H51' | base64 -w0)
+
+# merge creds into pull secret
+jq ".auths += {\"${LOCAL_REGISTRY}\": {\"auth\": \"${REGISTRY_CREDS}\",\"email\": \"${EMAIL}\"}}" < ${LOCAL_SECRET_TXT} > ${LOCAL_SECRET_JSON}
+
+# Set path to local directory on internet-connected host, make sure it exists first
+REMOVABLE_MEDIA_PATH=/home/mike/bundle
+
+# this will print the info (imageContentSources) needed to put in install-config.yaml which won't get printed syncing to local directory
+oc adm release mirror -a ${LOCAL_SECRET_JSON} --from=quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE}-${ARCHITECTURE} --to=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY} --to-release-image=${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}:${OCP_RELEASE}-${ARCHITECTURE} --dry-run
+
+# sync to local directory
+# this directory can then be zipped and transferred high-side
+oc adm release mirror -a ${LOCAL_SECRET_JSON} --to-dir=${REMOVABLE_MEDIA_PATH}/mirror quay.io/${PRODUCT_REPO}/${RELEASE_NAME}:${OCP_RELEASE}-${ARCHITECTURE}
+
+# mirror images from directory to quay, --insecure shouldn't be needed if quay has a valid cert
+oc image mirror -a ${LOCAL_SECRET_JSON} --from-dir=${REMOVABLE_MEDIA_PATH}/mirror "file://openshift/release:${OCP_RELEASE}*" ${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}
