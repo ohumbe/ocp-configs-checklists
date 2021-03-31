@@ -6,11 +6,11 @@ visudo
 
 
 
-# subscription-manager register --username=<user_name> --password=<password>
-# subscription-manager refresh
-# subscription-manager list --available
-# subscription-manager attach --pool=<pool_id>
-# yum update -y
+subscription-manager register --username=<user_name> --password=<password>
+subscription-manager refresh
+subscription-manager list --available
+subscription-manager attach --pool=<pool_id>
+yum update -y
 
 
 
@@ -19,10 +19,10 @@ sudo yum module install -y container-tools
 sudo podman login registry.redhat.io
 
 
-# firewall-cmd --permanent --add-port=8443/tcp
-# firewall-cmd --permanent --add-port=8080/tcp
-# firewall-cmd --permanent --add-port=443/tcp
-# firewall-cmd --reload
+sudo firewall-cmd --permanent --add-port=8443/tcp
+sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --permanent --add-port=443/tcp
+sudo firewall-cmd --reload
 
 
 export QUAY=${HOME}
