@@ -16,12 +16,12 @@ ssh-keygen
 cat /root/.ssh/id_rsa.pub
 
 #make new file with the following contents
-cat > installconfig << EOF
+cat > install-config.yaml << EOF
 apiVersion: v1 
 baseDomain: llnl.gov 
 compute: 
-  - hyperthreading: Enabled n
-    ame: worker 
+  - hyperthreading: Enabled 
+    name: worker 
     replicas: 0 
 controlPlane: 
   hyperthreading: Enabled 
