@@ -9,7 +9,11 @@ systemctl status httpd
 nslookup <all node fqdn and IPs for reverse lookup>
 mkdir <clustername>
 cd <clustername>
-#generate pullsecret
+#generate pullsecret with quay robot 
+#generate ssh key with defaults
+ssh-keygen
+#copy key to config
+cat /root/.ssh/id_rsa.pub
 #make new file with the following contents
 cat > installconfig << EOF
 apiVersion: v1 
