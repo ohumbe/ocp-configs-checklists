@@ -14,6 +14,7 @@ cd <clustername>
 ssh-keygen
 #copy key to config
 cat /root/.ssh/id_rsa.pub
+
 #make new file with the following contents
 cat > installconfig << EOF
 apiVersion: v1 
@@ -37,16 +38,17 @@ networking:
 platform: 
   none: {} 
 fips: false 
-pullSecret: '{"auths":{"":{"auth":"","email":""}}}' 
-sshKey: <ssh-key> 
+pullSecret: '{"auths":{"":{"auth":"","email":""}}}' <pullsecret>
+sshKey: <ssh-key>
 imageContentSources: 
-  - mirrors: 
-  - <registry> 
+- mirrors: 
+  - ocpmnm01.llnl.gov:8443/ocp4/openshift4
   source: quay.io/openshift-release-dev/ocp-release 
-  - mirrors: 
-  - <registry> 
+- mirrors: 
+  - ocpmnm01.llnl.gov:8443/ocp4/openshift4
+
   source: quay.io/openshift-release-dev/ocp-v4.0-art-dev 
-  additionalTrustBundle: |
+  additionalTrustBundle: | <copy of certifcate>
 
 EOF
 
