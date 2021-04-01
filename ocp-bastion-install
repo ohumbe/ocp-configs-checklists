@@ -1,0 +1,50 @@
+
+yum install -y httpd
+#openfirewall ports if it enabled
+mkdir /var/www/html/ignition
+systemctl enable --now httpd
+systemctl status httpd
+
+#verified dns entries with 
+nslookup <all node fqdn and IPs for reverse lookup>
+mkdir <clustername>
+cd <clustername>
+#generate pullsecret
+#make new file with the following contents
+cat > installconfig << EOF
+apiVersion: v1 
+baseDomain: llnl.gov 
+compute: 
+  - hyperthreading: Enabled n
+    ame: worker 
+    replicas: 0 
+controlPlane: 
+  hyperthreading: Enabled 
+  name: master 
+  replicas: 3 
+metadata: 1
+  name: ds 
+networking: 
+  clusterNetwork: 
+  - cidr: 10.128.0.0/14 
+    hostPrefix: 23 
+  networkType: OpenShiftSDN 
+  serviceNetwork: - 172.30.0.0/16 
+platform: 
+  none: {} 
+fips: false 
+pullSecret: '{"auths":{"":{"auth":"","email":""}}}' 
+sshKey: <ssh-key> 
+imageContentSources: 
+  - mirrors: 
+  - <registry> 
+  source: quay.io/openshift-release-dev/ocp-release 
+  - mirrors: 
+  - <registry> 
+  source: quay.io/openshift-release-dev/ocp-v4.0-art-dev 
+  additionalTrustBundle: |
+
+EOF
+
+
+
