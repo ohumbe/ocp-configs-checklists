@@ -3,7 +3,7 @@
   hosts: "{{ host }}"
 
   vars_files:
-    - ocp-mirror-vars.yml
+    - disconnected-registry-vars.yml
 
   tasks:
     - name: Download binaries for release version
