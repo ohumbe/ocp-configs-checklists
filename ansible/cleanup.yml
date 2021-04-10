@@ -1,0 +1,24 @@
+---
+- name: Cleanup containers
+  hosts: "{{ host }}"
+
+  vars_files:
+    - vars/disconnected-registry-vars.yml
+
+  tasks:
+    - name: Get the images to remove
+      become: yes
+      command: podman images -n
+      register: images
+
+    - name: Remove the images
+      become: yes
+      command: podman rmi -f {{ item.split()[2] }}
+      loop: "{{ images.stdout_lines }}"
+      loop_control:
+        label: "{{ item.split()[0] }}"
+
+    - name: Reload the images to the local registry
+      become: yes
+      command: podman load -i {{ item }}
+      loop: "{{ tar_images }}"

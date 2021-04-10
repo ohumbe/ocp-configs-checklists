@@ -3,14 +3,21 @@
   hosts: "{{ host }}"
 
   vars_files:
-    - disconnected-registry-vars.yml
+    - vars/quay-registry-vars.yml
+    - vars/mirror-vars.yml
 
   tasks:
-    - name: Download binaries for release version
+    - name: Extract the release bundle
+      unarchive:
+        src: "{{ bundle_file }}"
+        remote_src: yes
+        dest: "{{ bundle_tmp_dir }}"
+        creates: "{{ removable_media_path }}"
+        
+    - name: Install binaries for {{ ocp_release }}
       become: yes
-      when: not skip_download
-      get_url:
-        src: http://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocp_release }}/{{ item }}-linux-{{ ocp_release }}.tar.gz
+      unarchive:
+        src: "{{ removable_media_path }}/downloads/{{ item }}-linux-{{ ocp_release }}.tar.gz"
         remote_src: yes
         dest: /usr/bin
         exclude:
@@ -44,18 +51,9 @@
     - name: Create a merged pull secret with cloud secret and local registry secret
       copy:
         content: "{{ cloud_secret|combine(patch_creds, recursive=True) }}"
-        dest: merged-pull-secret.json
+        dest: "{{ merged_secret }}"
 
-    - name: Create local directory to download images
-      file:
-        path: "{{ removable_media_path }}"
-        state: directory
-
-    - name: Sync images to local directory
-      command: >
-        oc adm release mirror -a {{ merged_secret }} --to-dir {{ removable_media_path }}/mirror
-        quay.io/{{ product_repo }}/{{ release_name }}:{{ ocp_release }}-{{ arch }}
-
+    - fail:
     - name: Sync from local dir to registry
       command: >
         oc image mirror -a {{ merged_secret }} --from-dir {{ removable_media_path }}/mirror

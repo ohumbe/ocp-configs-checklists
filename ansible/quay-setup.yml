@@ -3,11 +3,11 @@
   hosts: "{{ host }}"
   
   vars_files:
-    - disconnected-registry-vars.yml
+    - vars/quay-registry-vars.yml
 
   tasks:
     - name: Install required packages
-      when: not skip_pkg_install|bool
+      when: quay_host_connected
       become: yes
       package:
         name: "{{ required_pkgs }}"
@@ -101,7 +101,8 @@
       become: yes
       when: postgresql_quay_is_running is not defined or not postgresql_quay_is_running
       command: >
-        podman run --ip {{ postgresql_ip }} -d --name postgresql-quay
+        podman run -d --name postgresql-quay {% if postgresql_ip is defined %} --ip {{ postgresql_ip }} {% endif %}
+        {% if quay_host_connected %} --authfile {{ cloud_secret }} {% endif %}
         -e POSTGRESQL_USER={{ postgresql_user }} -e POSTGRESQL_PASSWORD={{ postgresql_pass }}
         -e POSTGRESQL_DATABASE={{ postgresql_db }} -e POSTGRESQL_ADMIN_PASSWORD={{ postgresql_admin_pass }}
         -p {{ postgresql_port }}:{{ postgresql_port }} 
@@ -139,7 +140,8 @@
       become: yes
       when: redis_is_running is not defined or not redis_is_running
       command: >
-        podman run --ip {{ redis_ip }} -d --name redis 
+        podman run -d --name redis {% if redis_ip is defined %} --ip {{ redis_ip }} {% endif %}
+        {% if quay_host_connected %} --authfile {{ cloud_secret }} {% endif %}
         -e REDIS_PASSWORD={{ redis_password }} -p {{ redis_port }}:{{ redis_port }} 
         registry.redhat.io/rhel8/redis-5:1
       register: redis_started
@@ -167,6 +169,7 @@
       when: quay_is_running is not defined or not quay_is_running
       command: >
         podman run -d -p {{ quay_port }}:{{ quay_port }}
+        {% if quay_host_connected %} --authfile {{ cloud_secret }} {% endif %}
         --name quay -v {{ quay_config_dir }}:/conf/stack:Z 
         -v {{ quay_storage_dir }}:/datastorage:Z 
         registry.redhat.io/quay/quay-rhel8:v3.4.3

@@ -2,14 +2,22 @@ AUTHENTICATION_TYPE: Database
 AVATAR_KIND: local
 BITTORRENT_FILENAME_PEPPER: fff813b9-70e1-4752-a14b-8a9b2daa2340
 BUILDLOGS_REDIS:
+{% if redis_ip is defined %}
     host: {{ redis_ip }}
+{% else %}
+    host: {{ registry_ip }}
+{% endif %}
     password: {{ redis_password }}
     port: {{ redis_port }}
 DATABASE_SECRET_KEY: ad545c05-a27e-4165-88e7-1a8880dab916
 DB_CONNECTION_ARGS:
     autorollback: true
     threadlocals: true
+{% if postgresql_ip is defined %}
 DB_URI: postgresql://{{ postgresql_user }}:{{ postgresql_pass }}@{{ postgresql_ip }}:{{ postgresql_port }}/{{ postgresql_db }}
+{% else %}
+DB_URI: postgresql://{{ postgresql_user }}:{{ postgresql_pass }}@{{ registry_ip }}:{{ postgresql_port }}/{{ postgresql_db }}
+{% endif %}
 DEFAULT_TAG_EXPIRATION: 2w
 DISTRIBUTED_STORAGE_CONFIG:
     default:
@@ -91,7 +99,11 @@ TEAM_RESYNC_STALE_TIME: 30m
 TESTING: false
 USE_CDN: false
 USER_EVENTS_REDIS:
+{% if redis_ip is defined %}
     host: {{ redis_ip }}
+{% else %}
+    host: {{ registry_ip }}
+{% endif %}
     password: {{ redis_password }}
     port: {{ redis_port }}
 USER_RECOVERY_TOKEN_LIFETIME: 30m

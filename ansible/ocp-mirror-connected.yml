@@ -3,7 +3,8 @@
   hosts: "{{ host }}"
 
   vars_files:
-    - disconnected-registry-vars.yml
+    - vars/quay-registry-vars.yml
+    - vars/mirror-vars.yml
 
   tasks:
     - name: Create local directory to download images
@@ -16,7 +17,6 @@
 
     - name: Download binaries for release version
       become: yes
-      when: not skip_download
       get_url:
         url: http://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocp_release }}/{{ item }}-linux-{{ ocp_release }}.tar.gz
         dest: "{{ removable_media_path }}/downloads"
@@ -30,7 +30,7 @@
       unarchive:
         src: "{{ removable_media_path }}/downloads/{{ item }}-linux-{{ ocp_release }}.tar.gz"
         remote_src: yes
-        dest: "{{ bin_dir | default('/usr/bin') }}"
+        dest: "{{ bin_dir }}"
         exclude:
           - README.md
           - kubectl
@@ -46,4 +46,4 @@
     - name: Create tar file to transfer to high-side
       archive:
         path: "{{ removable_media_path }}"
-        dest: "{{ removable_media_path }}/../bundle.tar.gz"
+        dest: "{{ bundle_file }}"
