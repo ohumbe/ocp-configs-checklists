@@ -9,7 +9,7 @@
     - name: Download binaries for release version
       become: yes
       when: not skip_download
-      unarchive:
+      get_url:
         src: http://mirror.openshift.com/pub/openshift-v4/clients/ocp/{{ ocp_release }}/{{ item }}-linux-{{ ocp_release }}.tar.gz
         remote_src: yes
         dest: /usr/bin

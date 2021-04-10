@@ -2,14 +2,14 @@ AUTHENTICATION_TYPE: Database
 AVATAR_KIND: local
 BITTORRENT_FILENAME_PEPPER: fff813b9-70e1-4752-a14b-8a9b2daa2340
 BUILDLOGS_REDIS:
-    host: {{ registry_ip }}
+    host: {{ redis_ip }}
     password: {{ redis_password }}
     port: {{ redis_port }}
 DATABASE_SECRET_KEY: ad545c05-a27e-4165-88e7-1a8880dab916
 DB_CONNECTION_ARGS:
     autorollback: true
     threadlocals: true
-DB_URI: postgresql://{{ postgresql_user }}:{{ postgresql_pass }}@{{ registry_ip }}:{{ postgresql_port }}/{{ postgresql_db }}
+DB_URI: postgresql://{{ postgresql_user }}:{{ postgresql_pass }}@{{ postgresql_ip }}:{{ postgresql_port }}/{{ postgresql_db }}
 DEFAULT_TAG_EXPIRATION: 2w
 DISTRIBUTED_STORAGE_CONFIG:
     default:
@@ -77,7 +77,7 @@ SEARCH_MAX_RESULT_PAGE_COUNT: 10
 SEARCH_RESULTS_PER_PAGE: 10
 SECRET_KEY: 97801347-aafe-479f-95b1-d069975f00ac
 SECURITY_SCANNER_INDEXING_INTERVAL: 30
-SERVER_HOSTNAME: {{ registry_ip }}:{{ quay_port }}
+SERVER_HOSTNAME: {{ registry_fqdn }}:{{ quay_port }}
 SETUP_COMPLETE: true
 SUPER_USERS:
     - quayadmin
@@ -91,7 +91,7 @@ TEAM_RESYNC_STALE_TIME: 30m
 TESTING: false
 USE_CDN: false
 USER_EVENTS_REDIS:
-    host: {{ registry_ip }}
+    host: {{ redis_ip }}
     password: {{ redis_password }}
     port: {{ redis_port }}
 USER_RECOVERY_TOKEN_LIFETIME: 30m

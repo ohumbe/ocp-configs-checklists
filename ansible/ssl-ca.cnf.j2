@@ -10,7 +10,7 @@ countryName = US
 stateOrProvinceName = NC
 localityName = Raleigh
 organizationName = Red Hat
-commonName = {{ registry_host }}
+commonName = {{ registry_fqdn }}
 
 [req_ext]
 subjectAltName = @alt_names
@@ -27,5 +27,5 @@ basicConstraints        = critical,CA:true
 subjectKeyIdentifier    = hash
 
 [alt_names]
-DNS.1 = {{ registry_host }}
+DNS.1 = {{ registry_fqdn }}
 IP.1 = {{ registry_ip }}

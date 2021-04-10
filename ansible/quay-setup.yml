@@ -7,6 +7,7 @@
 
   tasks:
     - name: Install required packages
+      when: not skip_pkg_install|bool
       become: yes
       package:
         name: "{{ required_pkgs }}"
@@ -75,6 +76,14 @@
       become: yes
       command: update-ca-trust
 
+    - name: Adjust cert and key perms to what Quay wants
+      file:
+         path: "{{ quay_config_dir }}/{{ item }}"
+         mode: 0775
+      loop:
+         - ssl.cert
+         - ssl.key
+
     - name: Check if postgresql-quay container is running
       become: yes
       command: podman ps -f name='^postgresql-quay$' --format "{{ '{{' }} .Names {{ '}}' }}"
@@ -92,9 +101,9 @@
       become: yes
       when: postgresql_quay_is_running is not defined or not postgresql_quay_is_running
       command: >
-        podman run --authfile {{ cloud_secret }} -d --name postgresql-quay
-        -e POSTGRESQL_USER=quayuser -e POSTGRESQL_PASSWORD=quaypass
-        -e POSTGRESQL_DATABASE=quay -e POSTGRESQL_ADMIN_PASSWORD=adminpass
+        podman run --ip {{ postgresql_ip }} -d --name postgresql-quay
+        -e POSTGRESQL_USER={{ postgresql_user }} -e POSTGRESQL_PASSWORD={{ postgresql_pass }}
+        -e POSTGRESQL_DATABASE={{ postgresql_db }} -e POSTGRESQL_ADMIN_PASSWORD={{ postgresql_admin_pass }}
         -p {{ postgresql_port }}:{{ postgresql_port }} 
         -v {{ base_dir }}/postgresql-quay:/var/lib/pgsql/data:Z
         registry.redhat.io/rhel8/postgresql-10:1
@@ -109,7 +118,7 @@
       become: yes
       command: >
         podman exec -it postgresql-quay /bin/bash 
-        -c 'echo "CREATE EXTENSION IF NOT EXISTS" pg_trgm | psql -d quay -U postgres'
+        -c 'echo "CREATE EXTENSION IF NOT EXISTS" pg_trgm | psql -d {{ postgresql_db }} -U postgres'
       register: postgresql_add_extension
       changed_when: "'already exists' not in postgresql_add_extension.stdout"
 
@@ -130,7 +139,7 @@
       become: yes
       when: redis_is_running is not defined or not redis_is_running
       command: >
-        podman run --authfile {{ cloud_secret }} -d --name redis 
+        podman run --ip {{ redis_ip }} -d --name redis 
         -e REDIS_PASSWORD={{ redis_password }} -p {{ redis_port }}:{{ redis_port }} 
         registry.redhat.io/rhel8/redis-5:1
       register: redis_started
@@ -157,7 +166,8 @@
       become: yes
       when: quay_is_running is not defined or not quay_is_running
       command: >
-        podman run --authfile {{ cloud_secret }} -d -p {{ quay_port }}:{{ quay_port }}
+        podman run -d -p {{ quay_port }}:{{ quay_port }}
         --name quay -v {{ quay_config_dir }}:/conf/stack:Z 
-        -v {{ quay_storage_dir }}:/datastorage:Z registry.redhat.io/quay/quay-rhel8:v3.4.3
+        -v {{ quay_storage_dir }}:/datastorage:Z 
+        registry.redhat.io/quay/quay-rhel8:v3.4.3
       register: quay_started
