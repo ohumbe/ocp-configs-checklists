@@ -8,8 +8,8 @@ This repository will deploy a standalone instance of Quay using local storage on
 
 1. Host running podman
 > Tested with:
-  * podman 2.2.1
-  * RHEL 8.3
+>  * podman 2.2.1
+>  * RHEL 8.3
 2. Approximately 20G disk space available
 > This should be sufficient space to mirror one release version of OpenShift 4 to Quay.  More space will be required to mirror additional versions and/or mirror operators.
 
