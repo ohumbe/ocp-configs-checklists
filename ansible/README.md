@@ -61,11 +61,11 @@ The variable file has two main sections:
 
 7. `bin_dir`: Where to install `oc` and `openshift-install`
 8. `ocp_release`: x.y.z for OpenShift release to mirror
-9. `local_repository`: namespace/repository in Quay to mirror * **must already exist** *
+9. `local_repository`: namespace/repository in Quay to mirror **must already exist**
 10. `cloud_secret`: full path for pullsecret from [https://cloud.redhat.com](https://cloud.redhat.com)
 11. `merged_secret`: full path for merged pullsecret (cloud+disconnected_registry)
 12. `disconnected_registry_user`: your quay user
-13: `disconnected_registry_pass`: your quay password
+13. `disconnected_registry_pass`: your quay password
 
 ## Basic workflow
 ### Quay Registry Setup
@@ -83,7 +83,7 @@ The variable file has two main sections:
 ### OpenShift image mirror
 `ansible-playbook ocp-mirror-connected.yml -e host=<registry_host>`
 > Substitute \<registry_host\> for your registry host as identified in your inventory
-> This * **must** * run on an internet connected host.
+> This **must** run on an internet connected host.
 
 1. Setup directories for downloaded data
 2. Download binaries for OpenShift release being mirrored
