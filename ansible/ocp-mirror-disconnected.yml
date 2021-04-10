@@ -11,8 +11,12 @@
       unarchive:
         src: "{{ bundle_file }}"
         remote_src: yes
-        dest: "{{ bundle_tmp_dir }}"
-        creates: "{{ removable_media_path }}"
+        dest: "{{ removable_media_path }}"
+        creates: "{{ removable_media_path }}/bundle"
+
+    - name: Modify {{ removable_media_path }} to include "/bundle"
+      set_fact:
+        removable_media_path: "{{ removable_media_path }}/bundle"
         
     - name: Install binaries for {{ ocp_release }}
       become: yes
@@ -53,7 +57,6 @@
         content: "{{ cloud_secret|combine(patch_creds, recursive=True) }}"
         dest: "{{ merged_secret }}"
 
-    - fail:
     - name: Sync from local dir to registry
       command: >
         oc image mirror -a {{ merged_secret }} --from-dir {{ removable_media_path }}/mirror

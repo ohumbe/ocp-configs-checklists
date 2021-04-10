@@ -26,7 +26,6 @@
 
     - name: Extract OpenShift binaries to host
       become: yes
-      when: not skip_download
       unarchive:
         src: "{{ removable_media_path }}/downloads/{{ item }}-linux-{{ ocp_release }}.tar.gz"
         remote_src: yes

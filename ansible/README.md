@@ -36,6 +36,8 @@ podman load -i /path/to/quay.tar
 
 2. If Quay will be running on a disconnected host, the bundle file created using `ocp-mirror-connected.yml` must already be transferred to the disconnected registry.
 
+3. Your pullsecret from [https://cloud.redhat.com](https://cloud.redhat.com) must exist on the registry host as defined in `cloud_secret`.
+
 ## Setup
 ### Update Ansible inventory
 In either `/etc/ansible/hosts` or a local `inventory.yml`, configure your inventory for your container host using a local connection.
