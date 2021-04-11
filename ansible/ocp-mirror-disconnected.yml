@@ -12,12 +12,8 @@
         src: "{{ bundle_file }}"
         remote_src: yes
         dest: "{{ removable_media_path }}"
-        creates: "{{ removable_media_path }}/bundle"
+        creates: "{{ removable_media_path }}/downloads/openshift-client-linux-{{ ocp_release }}.tar.gz"
 
-    - name: Modify {{ removable_media_path }} to include "/bundle"
-      set_fact:
-        removable_media_path: "{{ removable_media_path }}/bundle"
-        
     - name: Install binaries for {{ ocp_release }}
       become: yes
       unarchive:

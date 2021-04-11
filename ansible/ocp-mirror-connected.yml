@@ -41,8 +41,11 @@
       command: >
         oc adm release mirror -a {{ cloud_secret }} --to-dir {{ removable_media_path }}/mirror
         quay.io/{{ product_repo }}/{{ release_name }}:{{ ocp_release }}-{{ arch }}
+      tags: [never]
 
     - name: Create tar file to transfer to high-side
       archive:
-        path: "{{ removable_media_path }}"
+        path: 
+          - "{{ removable_media_path }}/downloads"
+          - "{{ removable_media_path }}/mirror"
         dest: "{{ bundle_file }}"
