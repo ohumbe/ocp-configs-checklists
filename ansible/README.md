@@ -105,8 +105,11 @@ The `quay-setup.yml` playbook can be run at any time, and this will typically on
 5. Create tar of images and binary downloads for transfer to disconnected registry host
 6. OPTIONAL: Transfer to disconnected registry host if required
 
-### OpenSHift image mirror to registry
+### OpenShift image mirror to registry
 1. Extract the transferred bundle
 2. Install OpenShift binaries: oc, openshit-install
 3. Create merged pull-secret including disconnected registry credentials
 4. Sync OpenShift images from disk to registry
+
+## TODO
+Update `ocp-mirror-disconnected.yml` to include API calls to potentially create initial username/password and initial namespace/repoistory.
