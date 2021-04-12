@@ -1,6 +1,6 @@
 ---
 - name: Setup some infrastructure needed for OpenShift install
-  hosts: "{{ host }}"
+  hosts: registry
 
   vars_files:
     - vars/cluster-nodes.yml

@@ -1,6 +1,6 @@
 ---
 - name: Cleanup containers
-  hosts: "{{ host }}"
+  hosts: registry
 
   vars_files:
     - vars/quay-registry-vars.yml
