@@ -19,7 +19,7 @@ if [ "$HOSTNAME" = "ocpwrk01.llnl.gov" ] || [ "$HOSTNAME" = "ocpwrk02.llnl.gov" 
   cat > /etc/yum.repos.d/ose.repo <<-EOF
 	[rhel-7-server-ose-4.6-rpms]
 	name=Red Hat OpenShift Container Platform 4.6 (RPMs)
-	baseurl=http://localhost/pub/rpms
+	baseurl=http://ocpmgm01.llnl.gov:8080/pub/rpms
 	enabled=1
 	gpgcheck=0
 	EOF
