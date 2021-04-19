@@ -1,6 +1,6 @@
 ---
 - name: Setup files needed for bare metal install
-  hosts: "{{ host }}"
+  hosts: registry
 
   vars_files:
     - vars/install-config-vars.yml

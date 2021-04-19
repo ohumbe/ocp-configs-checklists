@@ -44,7 +44,7 @@ In either `/etc/ansible/hosts` or a local `inventory.yml`, configure your invent
 ```
 registry:
   hosts:
-    registry.example.com:
+    localhost:
   vars:
     ansible_connection: local
 ```
@@ -75,6 +75,7 @@ registry:
 6. `quay_host_connected`: Set true|false if container host is internet-connected
 > When set to ***true***, `required_pkgs` will be checked/installed and postgresql, redis, and quay containers will pull from registry.redhat.io.  When set to ***false***, postgresql, redis, and quay must be pre-loaded in the local podman registry.
 7. `quay_port`: Set to desired SSL port
+8. `cloud_secret`: full path for pullsecret from [https://cloud.redhat.com](https://cloud.redhat.com)
 
 
 ## Basic workflow
@@ -82,8 +83,7 @@ The `quay-setup.yml` playbook can be run at any time, and this will typically on
 > NOTE: For test environments, the disconnected registry host does not have to actually be disconnected and may actually be the same host used to do the initial mirror to disk.
 
 ### Quay Registry Setup
-`ansible-playbook quay-setup.yml -e host=<registry_host>`
-> Substitute \<registry_host\> for your registry host as identified in your inventory
+`ansible-playbook quay-setup.yml` or `ansible-playbook -i inventory.yml quay-setup.yml`
 
 1. Check for and install required packages as required
 2. Setup and configure directories for Quay
@@ -94,8 +94,7 @@ The `quay-setup.yml` playbook can be run at any time, and this will typically on
 7. Create and start Quay container as required
 
 ### OpenShift image mirror disk
-`ansible-playbook ocp-mirror-connected.yml -e host=<registry_host>`
-> Substitute \<registry_host\> for your registry host as identified in your inventory.
+`ansible-playbook ocp-mirror-connected.yml` or `ansible-playbook -i inventory.yml ocp-mirror-connected.yml`
 > This ***must*** run on an internet connected host.
 
 1. Setup directories for downloaded data
@@ -106,6 +105,7 @@ The `quay-setup.yml` playbook can be run at any time, and this will typically on
 6. OPTIONAL: Transfer to disconnected registry host if required
 
 ### OpenShift image mirror to registry
+`ansible-playbook ocp-mirror-disconnected.yml` or `ansible-playbook -i inventory.yml ocp-mirror-disconnected.yml`
 1. Extract the transferred bundle
 2. Install OpenShift binaries: oc, openshit-install
 3. Create merged pull-secret including disconnected registry credentials

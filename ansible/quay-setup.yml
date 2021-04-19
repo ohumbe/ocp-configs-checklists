@@ -1,6 +1,6 @@
 ---
 - name: Setup Quay non-production
-  hosts: "{{ host }}"
+  hosts: registry
   
   vars_files:
     - vars/quay-registry-vars.yml

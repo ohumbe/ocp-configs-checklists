@@ -1,6 +1,6 @@
 ---
 - name: Mirror ocp release images to local registry
-  hosts: "{{ host }}"
+  hosts: registry
 
   vars_files:
     - vars/quay-registry-vars.yml
