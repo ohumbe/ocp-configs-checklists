@@ -38,7 +38,7 @@
         -p "{{ operator.name }}"
     
     - name: Push the custom catalog image to disconnected registry
-      command: podman push --authfile /run/user/1000/containers/auth.json {{ local_registry }}/{{ local_namespace }}/{{ rh_operator_image|basename }}
+      command: podman push --authfile {{ creds_file }} {{ local_registry }}/{{ local_namespace }}/{{ rh_operator_image|basename }}
     
     - name: Get dangling images from multiple prune operations
       command: podman images --filter dangling=true -q
@@ -53,7 +53,7 @@
     - name: Mirror {{ operator.name }} content to disk
       command: >
         oc adm catalog mirror {{ local_registry }}/{{ local_namespace }}/{{ rh_operator_image|basename }}
-        file://mirror -a /run/user/1000/containers/auth.json --index-filter-by-os='linux/amd64'
+        file://mirror -a {{ creds_file }} --index-filter-by-os='linux/amd64'
       args:
         chdir: "{{ mirror_dir }}"
     

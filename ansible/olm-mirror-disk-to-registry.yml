@@ -28,7 +28,7 @@
  
     - name: Push the custom catalog image to disconnected registry
       command: >
-        podman push --authfile /run/user/1000/containers/auth.json 
+        podman push --authfile {{ creds_file }} 
         "{{ local_registry }}/{{ local_namespace }}/{{ rh_catalog_image|basename }}"
     
     - name: Loop through the operators one at a time due to a bug

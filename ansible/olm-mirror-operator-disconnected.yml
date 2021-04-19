@@ -51,7 +51,7 @@
     
     - name: Mirror {{ operator.name }} content from disk to registry
       command: >
-        oc adm catalog mirror -a /run/user/1000/containers/auth.json
+        oc adm catalog mirror -a {{ creds }}
         file://mirror/{{ local_namespace }}/{{ rh_catalog_image|basename }} {{ local_registry }}/{{ local_namespace }}
       args:
         chdir: "{{ bundle_dir }}"

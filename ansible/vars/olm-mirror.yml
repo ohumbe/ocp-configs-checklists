@@ -18,6 +18,7 @@ ose_release: 4.6
 rh_catalog_image: registry.redhat.io/redhat/redhat-operator-index:v{{ ose_release }}
 local_registry: registry.ds.local.lab:8443
 local_namespace: olm-4.6
+creds_file: /path/to/creds
 
 tmp_icsp: imageContentSourcePolicy.yaml
 kubeconfig: ~/.kube/kubeconfig
