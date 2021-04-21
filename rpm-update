@@ -1,0 +1,4 @@
+1. take the rpms.tar file from the git repo and download it to ocpmgm01.llnl.gov
+2. extract the file into /var/www/html/rpms (I don't remember the exact path here, put it with the other rpms we did before)
+3. on ocpmgm03.llnl.gov, create /etc/yum.repos.d/ose.repo like we did on ocpwrk01/02, you can copy the file from there
+4. on ocpmgm03.llnl.gov, yum install python3-openshift python3-requests-oauthlib
