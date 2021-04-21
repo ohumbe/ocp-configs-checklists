@@ -1,34 +1,53 @@
+# since you have one certificate for api and ingress
+# <api-cert-file> = <ingress-cert-file> and <api-key-file> = <ingress-key-file>
+#
+# you can run 'openssl verify <api-cert-file>' to validate it is trusted with the system trust store
+# you can run 'openssl verify -CAfile <ca-cert> <api-cert-file>' to validate which ca certificate file you need
+# I suspect you only need LLNLROOT, so try that first, do not combine LLNLROOT with the other 2 certs unless you
+# cannot verify the cert with only LLNLROOT
+#
+# DO NOT combine the certs and CA files into a single file prior to any of these steps
+
 # copy ca cert to trust store and update trust store
-sudo cp local_lab.pem /etc/pki/ca-trust/source/anchors/ca-local-lab.crt
+# ---> this is already ok at LLNL
+sudo cp <ca-cert> /etc/pki/ca-trust/source/anchors/ca-local-lab.crt
 sudo update-ca-trust
 
 # validate the certs can be verified
-openssl verify api.ds.local.lab.pem
-openssl verify apps.ds.local.lab.pem
+# change <cert-file> to filename for your cert
+openssl verify <cert-file>
 
 # create secret for api certificate
-oc create secret tls api-ds-local-lab --cert=api.ds.local.lab.pem --key=ds.local.lab.key -n openshift-config
+# <name-of-api-cert> use something meaningful, e.g. llnl-api-cert
+# <api-cert-file> and <api-key-file> are your downloaded filenames
+oc create secret tls <name-of-cert> --cert=<api-cert-file> --key=<api-key-file> -n openshift-config
 
 # back up the apiserver-cluster-config
 oc get -o yaml apiserver cluster > apiserver.cluster.yaml
 
 # patch the api server
-oc patch apiserver cluster --type=merge -p '{"spec":{"servingCerts": {"namedCertificates": [{"names": ["api.ds.local.lab"], "servingCertificate": {"name": "api-ds-local-lab"}}]}}}'
+# <name-of-api-cert> should match name used when creating the secert in previous step
+oc patch apiserver cluster --type=merge -p '{"spec":{"servingCerts": {"namedCertificates": [{"names": ["api.ocp4-cluster01.llnl.gov"], "servingCertificate": {"name": "<name-of-api-cert>"}}]}}}'
 
 # validate it got updated
 oc get -o yaml apiserver cluster
 
 # create configmap for the ca for the api certificate
-oc create cm custom-ca-ds-local-lab --from-file=ca-bundle.crt=local_lab.pem -n openshift-config
+# <name-of-ca-configmap> should be meaningful, e.g. llnl-ca-root-cert
+# <ca-cert> should match the cert from the first step
+oc create cm <name-of-ca-configmap> --from-file=ca-bundle.crt=<ca-cert> -n openshift-config
 
 # update the proxy config with the api server ca cert
-oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"custom-ca-ds-local-lab"}}}'
+# <name-of-ca-configmap> should match previous command
+oc patch proxy/cluster --type=merge --patch='{"spec":{"trustedCA":{"name":"<name-of-ca-configmap>"}}}'
 
 # create secret for wildcard certificate
-oc create secret tls apps-ds-local-lab --cert=apps.ds.local.lab.pem --key=ds.local.lab.key -n openshift-ingress
+# <name-of-ingress-secret> should be meaningful, e.g. llnl-ingress-cert
+oc create secret tls <name-of-ingress-cert> --cert=<ingress-cert-file> --key=<ingress-key-file> -n openshift-ingress
 
 # patch the ingress controller, need to do this insecurely now
-oc patch ingresscontroller.operator default --type=merge -p '{"spec":{"defaultCertificate": {"name": "apps-ds-local-lab"}}}' -n openshift-ingress-operator --insecure-skip-tls-verify=true
+# <name-of-ingress-secret> should match previous command
+oc patch ingresscontroller.operator default --type=merge -p '{"spec":{"defaultCertificate": {"name": "<name-of-ingress-secret>"}}}' -n openshift-ingress-operator --insecure-skip-tls-verify=true
 
 # nodes will reboot at this point, wait for them to finish
 watch oc get nodes --insecure-skip-tls-verify=true
