@@ -1,0 +1,45 @@
+# Registering RHEL boxes to Satellite for Openshift repos
+
+## Check if RHEL boxes have certificate rpm for the satellite (i.e. `katello-ca-consumer-<satellite-fqdn>`)
+rpm -qa | grep katello
+
+## If new org was added, system will need to be re-registered
+### Download new consumer RPM (`katello-ca-consumer..`)
+rpm -Uvh http://satellite.example.com/pub/katello-ca-consumer-latest.noarch.rpm
+
+OR
+
+curl --insecure --output katello-ca-consumer-latest.noarch.rpm https://satellite.example.com/pub/katello-ca-consumer-latest.noarch.rpm
+
+yum localinstall katello-ca-consumer-latest.noarch.rpm
+
+### Ask for activation key & register the host to Satellite using the activation key
+subscription-manager register --activationkey="My_Activation_Key" \
+--org="My_Organization"
+
+### Install the katello-agent package on the host so that it can report back to Satellite Server
+yum install katello-agent
+
+### Pull the latest subscription data from RHSM
+subscription-manager refresh
+
+### List the available subscriptions
+subscription-manager list --available --matches '*OpenShift*'
+
+### In the output for the previous command, find the pool ID for an OpenShift Container Platform subscription and attach it
+subscription-manager attach --pool=<pool_id>
+
+### Enable the repositories required by OpenShift Container Platform 4.6
+subscription-manager repos \
+    --enable="rhel-7-server-rpms" \
+    --enable="rhel-7-server-extras-rpms" \
+    --enable="rhel-7-server-ansible-2.9-rpms" \
+    --enable="rhel-7-server-ose-4.6-rpms"
+
+### nstall the required packages, including openshift-ansible
+yum install openshift-ansible openshift-clients jq
+
+Ref:
+- https://access.redhat.com/documentation/en-us/red_hat_satellite/6.9/html/managing_hosts/registering_hosts
+- https://access.redhat.com/documentation/en-us/red_hat_satellite/6.9/html-single/content_management_guide/index#Managing_Activation_Keys
+- https://docs.openshift.com/container-platform/4.6/post_installation_configuration/node-tasks.html#rhel-preparing-node_post-install-node-tasks
