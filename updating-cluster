@@ -1,0 +1,20 @@
+# Updating OCP Cluster
+
+## Pre-reqs
+- Navigate to https://access.redhat.com/labs/ocpupgradegraph/update_path to determine what release to update to.
+- Follow instructions in [ocp-install](./ocp-install) to mirror newest release to mirror registry.
+- Make a [backup of etcd](https://docs.openshift.com/container-platform/4.6/backup_and_restore/backing-up-etcd.html).
+
+## Updating
+### Apply the mirrored release image signature config map to the connected cluster - For <image_signature_file>, specify the path and name of the file, for example, mirror/config/signature-sha256-81154f5c03294534.yaml
+oc apply -f <image_signature_file>
+
+### Update cluster - find the sha value in the signature yaml
+oc adm upgrade --allow-explicit-upgrade --to-image ${LOCAL_REGISTRY}/${LOCAL_REPOSITORY}<sha256_sum_value>
+
+## Verify
+- Watch the cluster update process in the gui under `Administrator`/`Cluster Settings` tabs
+- watch `oc get co`
+
+Ref:
+- https://docs.openshift.com/container-platform/4.6/updating/updating-restricted-network-cluster.html

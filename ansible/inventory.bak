@@ -1,0 +1,4 @@
+[registry]
+jumphost
+[registry:vars]
+ansible_connection=local

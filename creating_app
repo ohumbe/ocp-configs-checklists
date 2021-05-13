@@ -1,0 +1,2 @@
+oc get is
+oc new-app --name test-nginx $NAME_OF_IS

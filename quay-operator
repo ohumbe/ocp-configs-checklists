@@ -1,0 +1,24 @@
+# Setting up Quay as the default internal registry to OpenShift
+
+## Pre-reqs
+- Object storage available for Quay
+
+## Double-check that image registry is 'Removed'
+oc get configs.imageregistry.operator.openshift.io -o yaml | grep managementState
+
+## Deploy Quay as an Operator
+- Deploy from OperatorHub on all namespaces for cluster-wide access
+- Deploy an instance of Quay 'Create QuayRegistry'
+- In the Form, under 'Components', make sure `objectstorage` management is set to false
+- Create
+
+## Configure Quay
+- Once resources are created, the `configEditorEndpoint` should be in the YAML file at the bottom
+- Login using the base64-decoded credentials specified in the `configEditorCredentialsSecret` Secret in the namespace where operator was deployed
+- Configuration should be filled out - add the storage configuration, validate, and apply to Operator
+- Once configuration is applied, it should start deploying the quay registry
+- In a few minutes, the quay registry should become available at the endpoint specified by the route
+
+Ref:
+- https://docs.openshift.com/container-platform/4.6/registry/configuring-registry-operator.html#registry-removed_configuring-registry-operator
+- https://access.redhat.com/documentation/en-us/red_hat_quay/3.4/html/deploy_red_hat_quay_on_openshift_with_the_quay_operator/installing_the_quay_operator#deciding_on_a_storage_solution

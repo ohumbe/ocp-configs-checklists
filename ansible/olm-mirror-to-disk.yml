@@ -1,6 +1,6 @@
 ---
 - name: Mirror operator images to local disk
-  hosts: jumpbox
+  hosts: ocptest.com
 
   vars_files:
     - vars/olm-mirror.yml

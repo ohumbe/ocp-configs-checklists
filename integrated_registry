@@ -1,0 +1,18 @@
+# Steps to configure integrated OpenShift registry
+
+## Change managementState Image Registry Operator configuration from Removed to Managed
+oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"managementState":"Managed"}}'
+
+## Create PVC (ideally with RWX mode for HA)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-registry-storage
+  namespace: openshift-image-registry
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: px-shared-sc

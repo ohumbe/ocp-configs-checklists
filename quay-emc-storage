@@ -1,0 +1,15 @@
+# Setting up Quay registry storage on Dell EMC Object Storage
+
+## Adding TLS certs for Quay
+### Add quay server cert in 'upload certificates' section
+- Added del_ecs_ssl.cer
+- use s3 in the beginning, e.g. s3.hostname.llnl.gov as the hostname
+
+## Adding TLS certs for Dell EMC storage
+### Add storage cert in 'upload certificates' section
+
+## Setting up object storage
+
+Ref:
+- https://access.redhat.com/documentation/en-us/red_hat_quay/3.4/html/manage_red_hat_quay/adding-tls-certificates-to-the-quay-enterprise-container#add-certs-when-deployed-on-kubernetes
+- https://access.redhat.com/documentation/en-us/red_hat_quay/3.4/html/manage_red_hat_quay/georeplication-of-storage-in-quay#run-quay-with-storage-preferences
