@@ -12,6 +12,20 @@ spec:
   storageClassName: px-shared-pvc
   volumeMode: Filesystem
 
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-registry-block-storage
+  namespace: openshift-image-registry
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: px-db
+
+
 ## Switching to shared
 oc patch configs.imageregistry.operator.openshift.io cluster --type merge --patch '{"spec":{"storage":{"pvc":{"claim":{"image-registry-storage"}}}}}'
 #
